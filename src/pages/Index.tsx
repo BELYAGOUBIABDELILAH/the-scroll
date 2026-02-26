@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Users, MessageSquare, BookOpen, Feather } from "lucide-react";
+import { BookOpen, Feather } from "lucide-react";
 import { FeaturedWriters } from "@/components/FeaturedWriters";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Testimonials } from "@/components/Testimonials";
@@ -26,23 +26,6 @@ const fadeUp = {
   }),
 };
 
-const featurePanels = [
-  {
-    icon: Lock,
-    title: "The Abonnement Gate",
-    description: "Seal your most valuable scrolls behind a subscriber-only gate. Only true bannermen gain passage.",
-  },
-  {
-    icon: Users,
-    title: "Forged Alliances",
-    description: "Endorse fellow scribes and cross-pollinate audiences. A decentralized network of trusted voices.",
-  },
-  {
-    icon: MessageSquare,
-    title: "The Council",
-    description: "Every scroll has a council chamber. Readers deliberate, debate, and shape the discourse.",
-  },
-];
 
 const stats = [
   { label: "Writers", value: "500+" },
@@ -316,36 +299,67 @@ const Index = () => {
       </section>
 
       {/* ═══════════════════════════════════════════
-          FEATURES
+          WHY THE SCROLL — Manifesto-style
       ═══════════════════════════════════════════ */}
-      <section id="features" className="mx-auto max-w-5xl px-6 pb-24">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="mb-10"
-        >
-          <h2 className="mb-2 font-serif text-3xl font-bold text-foreground">The Mechanics</h2>
-          <p className="text-sm text-muted-foreground">How the realm operates.</p>
-        </motion.div>
+      <section id="features" className="relative overflow-hidden border-y border-border py-28">
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute right-0 top-0 h-[400px] w-[400px] rounded-full blur-[180px]" style={{ backgroundColor: "hsla(0, 72%, 45%, 0.03)" }} />
+          <div className="absolute left-0 bottom-0 h-[300px] w-[300px] rounded-full blur-[150px]" style={{ backgroundColor: "hsla(30, 60%, 50%, 0.03)" }} />
+        </div>
 
-        <div className="grid gap-4 md:grid-cols-3">
-          {featurePanels.map((panel, i) => (
-            <motion.div
-              key={panel.title}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="rounded-lg border border-border bg-card p-8"
-            >
-              <panel.icon className="mb-5 h-6 w-6 text-primary" />
-              <h3 className="mb-3 font-serif text-xl font-bold text-foreground">{panel.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{panel.description}</p>
-            </motion.div>
-          ))}
+        <div className="relative z-10 mx-auto max-w-5xl px-6">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="mb-16 max-w-lg"
+          >
+            <span className="mb-3 inline-block font-mono text-xs font-semibold tracking-widest text-primary/60 uppercase">The Manifesto</span>
+            <h2 className="font-serif text-4xl font-bold leading-tight text-foreground md:text-5xl">
+              Writing deserves<br />better than this.
+            </h2>
+          </motion.div>
+
+          <div className="grid gap-px overflow-hidden rounded-xl border border-border bg-border md:grid-cols-2">
+            {[
+              {
+                number: "01",
+                title: "No Algorithm Overlords",
+                body: "Your words reach your readers — not a feed ranked by engagement bait. Chronological, honest, yours.",
+              },
+              {
+                number: "02",
+                title: "You Own Everything",
+                body: "Your subscriber list, your content, your data. Export anytime. No lock-in, no hostage negotiations.",
+              },
+              {
+                number: "03",
+                title: "Built for Depth",
+                body: "Long-form essays, serialized stories, research threads. Not another platform optimized for hot takes.",
+              },
+              {
+                number: "04",
+                title: "Community, Not Clout",
+                body: "Council discussions under every scroll. Readers who think, not just like. Discourse over dopamine.",
+              },
+            ].map((item, i) => (
+              <motion.div
+                key={item.number}
+                custom={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+                className="group relative bg-card p-10 transition-colors hover:bg-accent/30"
+              >
+                <span className="mb-4 block font-mono text-xs font-bold tracking-widest text-primary/40">{item.number}</span>
+                <h3 className="mb-3 font-serif text-xl font-bold text-foreground">{item.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{item.body}</p>
+                <div className="absolute bottom-0 left-10 right-10 h-px bg-primary/0 transition-colors group-hover:bg-primary/20" />
+              </motion.div>
+            ))}
+          </div>
         </div>
       </section>
 
