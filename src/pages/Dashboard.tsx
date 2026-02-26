@@ -6,7 +6,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Feather, Trash2, Eye, EyeOff } from "lucide-react";
+import { Feather, Trash2, Eye, EyeOff, Mail, Users } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
@@ -66,6 +66,19 @@ const Dashboard = () => {
         ...s,
         display_name: profileMap.get(s.subscriber_id) ?? "Unknown",
       }));
+    },
+    enabled: !!user,
+  });
+
+  // Fetch email subscribers
+  const { data: emailSubs } = useQuery({
+    queryKey: ["email-subscribers"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("email_subscribers")
+        .select("*")
+        .order("created_at", { ascending: false });
+      return data ?? [];
     },
     enabled: !!user,
   });
@@ -225,21 +238,54 @@ const Dashboard = () => {
 
         {/* Bannermen */}
         {tab === "bannermen" && (
-          <div className="space-y-3">
-            {bannermen?.length === 0 && (
-              <p className="py-12 text-center text-muted-foreground">No bannermen have pledged yet.</p>
-            )}
-            {bannermen?.map((b) => (
-              <div
-                key={b.subscriber_id}
-                className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
-              >
-                <span className="font-medium text-foreground">{b.display_name}</span>
-                <span className="text-xs text-muted-foreground">
-                  Pledged {format(new Date(b.created_at), "MMM d, yyyy")}
-                </span>
+          <div className="space-y-6">
+            {/* Email Subscribers */}
+            <div>
+              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Mail className="h-4 w-4" />
+                Email Subscribers ({emailSubs?.length ?? 0})
               </div>
-            ))}
+              {emailSubs?.length === 0 && (
+                <p className="py-6 text-center text-sm text-muted-foreground">No email subscribers yet.</p>
+              )}
+              <div className="space-y-2">
+                {emailSubs?.map((s) => (
+                  <div
+                    key={s.id}
+                    className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
+                  >
+                    <span className="font-medium text-foreground">{s.email}</span>
+                    <span className="text-xs text-muted-foreground">
+                      Pledged {format(new Date(s.created_at), "MMM d, yyyy")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Account Subscribers */}
+            <div>
+              <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <Users className="h-4 w-4" />
+                Account Subscribers ({bannermen?.length ?? 0})
+              </div>
+              {bannermen?.length === 0 && (
+                <p className="py-6 text-center text-sm text-muted-foreground">No account subscribers yet.</p>
+              )}
+              <div className="space-y-2">
+                {bannermen?.map((b) => (
+                  <div
+                    key={b.subscriber_id}
+                    className="flex items-center justify-between rounded-lg border border-border bg-card p-4"
+                  >
+                    <span className="font-medium text-foreground">{b.display_name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      Pledged {format(new Date(b.created_at), "MMM d, yyyy")}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         )}
       </div>
