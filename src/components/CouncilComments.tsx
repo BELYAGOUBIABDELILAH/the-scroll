@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -26,6 +26,24 @@ export const CouncilComments = ({ scrollId, authorId }: CouncilCommentsProps) =>
   const { user } = useAuth();
   const [content, setContent] = useState("");
   const queryClient = useQueryClient();
+
+  // Realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel(`council-${scrollId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "comments", filter: `scroll_id=eq.${scrollId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["council-comments", scrollId] });
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [scrollId, queryClient]);
 
   const { data: comments = [] } = useQuery({
     queryKey: ["council-comments", scrollId],
