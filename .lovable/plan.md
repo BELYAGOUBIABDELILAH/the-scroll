@@ -1,45 +1,57 @@
 
 
-## "The Council" — Subscriber-Only Comment Section
+## Alliances Widget + Pledge Alliance Modal
 
 ### Database
 
-**New table: `comments`**
+**New table: `alliances`**
 - `id` (uuid, PK, default `gen_random_uuid()`)
-- `scroll_id` (uuid, NOT NULL, FK → scrolls.id ON DELETE CASCADE)
-- `user_id` (uuid, NOT NULL)
-- `content` (text, NOT NULL)
+- `scribe_id` (uuid, NOT NULL) — the author who curates this alliance
+- `allied_user_id` (uuid, NOT NULL) — the allied author's user_id
+- `description` (text, NOT NULL, default `''`) — 3-word tagline (e.g. "Strategy & Lore")
+- `display_order` (integer, NOT NULL, default `0`)
 - `created_at` (timestamptz, default `now()`)
 
 **RLS policies:**
-- SELECT: open to everyone (`true`) — comments are public
-- INSERT: authenticated users only (`auth.uid() = user_id`) — must be logged in
-- DELETE: own comments only (`auth.uid() = user_id`)
+- SELECT: public (`true`)
+- INSERT/UPDATE/DELETE: scribe only (`auth.uid() = scribe_id`)
 
-**Index:** on `(scroll_id, created_at)` for fast feed queries.
+**Unique constraint:** `(scribe_id, allied_user_id)`
 
-### New Component: `src/components/CouncilComments.tsx`
+### Component 1: `src/components/AlliancesWidget.tsx`
 
-A self-contained component that receives `scrollId` and `authorId` as props, placed below the footer in `ScrollView.tsx`.
+Props: `scribeId: string`
 
-**Structure:**
-- Serif heading: "The Council"
-- **Input gate** (visible only if `user` is logged in): dark `#121212` textarea with `1px #27272A` border, placeholder "Share your thoughts with the realm...", Targaryen Red `#8B0000` submit button right-aligned
-- If not logged in: subtle message "Sign in to join the discussion" with link to `/auth`
-- **Comment feed**: flat vertical stack, each card is a bento-style card (`#0D0D0D` bg, `1px #1A1A1A` border)
-  - Top row: circular avatar, bold name, relative timestamp (e.g. "2h ago")
-  - Body: comment text in `#D4D4D8`
-- **Author highlight**: if `comment.user_id === authorId`, apply a subtle red border (`1px solid #8B0000` with `box-shadow: 0 0 8px rgba(139,0,0,0.3)`) and an "Author" badge in `#8B0000` next to the name
-- Uses `useQuery` to fetch comments joined with profiles, `useMutation` + `useQueryClient` for optimistic posting
+- Queries `alliances` table joined with `profiles` (for name, avatar) filtered by `scribe_id`, ordered by `display_order`
+- Renders a bento box: obsidian `#080808` bg, `1px #1A1A1A` border, rounded
+- Heading: serif "Alliances" in `#A1A1AA`
+- Each row: grayscale circular avatar (CSS `filter: grayscale(100%)`), name in white sans-serif, 3-word description in `#71717A`
+- Entire row is a subtle hover link (`#121212` bg on hover) — links to `/` (since there's no per-author page yet, or could be a no-op anchor)
 
-### Integration into ScrollView
+**Placement:** Rendered on `Index.tsx` below the scrolls feed, before the footer, inside the 700px container.
 
-- Import and render `<CouncilComments scrollId={scroll.id} authorId={scroll.author_id} />` after the existing `<footer>` block, still inside the 700px container
-- Only render when `canReadFull` is true (subscribers/authors only see comments)
+### Component 2: `src/components/PledgeAllianceModal.tsx`
+
+Props: `scribeId: string`, `open: boolean`, `onClose: () => void`
+
+- Uses Radix Dialog with glassmorphic overlay (`backdrop-filter: blur(12px)`, semi-transparent dark bg)
+- Bento card center: `#0D0D0D` bg, `1px #1A1A1A` border
+- Serif header: "Your raven has been dispatched. Expand your network."
+- Lists the 3 allied authors with checkboxes (default checked), avatar + name
+- Red `#8B0000` button: "Add to Subscriptions" — bulk-inserts into `subscriptions` table for each checked ally
+- Gray text link: "No thanks, enter the archives." — closes modal
+
+**Trigger logic:** In both `Index.tsx` (handleSubscribe) and `ScrollView.tsx` (handleSubscribe), after a successful email subscription, open the modal by setting state. The modal only shows if alliances exist for the scribe.
+
+### Integration Points
+
+1. **`Index.tsx`**: Add `AlliancesWidget` before footer. After successful subscribe, show `PledgeAllianceModal`.
+2. **`ScrollView.tsx`**: After successful subscribe in the gate form, show `PledgeAllianceModal`.
 
 ### Implementation Steps
 
-1. Create database migration for `comments` table with RLS
-2. Build `CouncilComments.tsx` component with input gate, feed, and author highlighting
-3. Integrate into `ScrollView.tsx` below the footer
+1. Create database migration for `alliances` table with RLS
+2. Build `AlliancesWidget.tsx` — bento box with grayscale avatars and hover rows
+3. Build `PledgeAllianceModal.tsx` — glassmorphic dialog with checkboxes and bulk subscribe
+4. Integrate widget into `Index.tsx` and trigger modal on subscription in both `Index.tsx` and `ScrollView.tsx`
 
