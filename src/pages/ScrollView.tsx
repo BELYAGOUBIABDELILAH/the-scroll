@@ -11,6 +11,7 @@ import { format } from "date-fns";
 import { useEffect, useState } from "react";
 import { trackScrollView } from "@/lib/analytics";
 import { toast } from "sonner";
+import { CouncilComments } from "@/components/CouncilComments";
 
 function getReadingTime(content: string): string {
   const words = content.trim().split(/\s+/).length;
@@ -263,6 +264,11 @@ const ScrollView = () => {
             {copied ? "Copié" : "Partager"}
           </button>
         </footer>
+
+        {/* The Council — Comment Section */}
+        {canReadFull && (
+          <CouncilComments scrollId={scroll.id} authorId={scroll.author_id} />
+        )}
       </div>
     </div>
   );
