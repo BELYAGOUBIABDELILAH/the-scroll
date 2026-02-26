@@ -8,6 +8,7 @@ interface ScrollCardProps {
   is_sealed: boolean;
   published_at: string | null;
   author_name: string;
+  author_id?: string;
   tag?: string;
   featured?: boolean;
 }
@@ -19,6 +20,7 @@ export const ScrollCard = ({
   is_sealed,
   published_at,
   author_name,
+  author_id,
   tag,
 }: ScrollCardProps) => {
   return (
@@ -28,9 +30,20 @@ export const ScrollCard = ({
       style={{ borderBottom: "1px solid #1A1A1A" }}
     >
       <div className="flex items-center gap-3 mb-2">
-        <span className="text-xs font-medium" style={{ color: "#52525B" }}>
-          {author_name}
-        </span>
+        {author_id ? (
+          <Link
+            to={`/scribe/${author_id}`}
+            className="text-xs font-medium hover:opacity-70 transition-opacity"
+            style={{ color: "#52525B" }}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {author_name}
+          </Link>
+        ) : (
+          <span className="text-xs font-medium" style={{ color: "#52525B" }}>
+            {author_name}
+          </span>
+        )}
         {published_at && (
           <>
             <span style={{ color: "#27272A" }}>·</span>
