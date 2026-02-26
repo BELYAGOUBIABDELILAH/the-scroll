@@ -76,13 +76,25 @@ const Index = () => {
     e.preventDefault();
     if (!email) return;
     setSubscribing(true);
-    // For now, show a success toast. Full subscribe logic would insert into a subscribers/email list.
-    toast({
-      title: "Fealty pledged!",
-      description: "You'll receive new scrolls by raven.",
-    });
-    setEmail("");
-    setSubscribing(false);
+    try {
+      const { error } = await supabase
+        .from("email_subscribers")
+        .insert({ email: email.trim().toLowerCase() });
+      if (error) {
+        if (error.code === "23505") {
+          toast({ title: "Already pledged!", description: "This email has already sworn fealty." });
+        } else {
+          throw error;
+        }
+      } else {
+        toast({ title: "Fealty pledged!", description: "You'll receive new scrolls by raven." });
+      }
+      setEmail("");
+    } catch (error: any) {
+      toast({ title: "Failed to pledge", description: error.message, variant: "destructive" });
+    } finally {
+      setSubscribing(false);
+    }
   };
 
   return (
