@@ -1,0 +1,1 @@
+ALTER TABLE public.scrolls ADD COLUMN tag text NOT NULL DEFAULT 'general';

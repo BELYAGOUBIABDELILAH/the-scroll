@@ -163,6 +163,7 @@ export type Database = {
           is_sealed: boolean
           published_at: string | null
           status: string
+          tag: string
           title: string
           updated_at: string
         }
@@ -175,6 +176,7 @@ export type Database = {
           is_sealed?: boolean
           published_at?: string | null
           status?: string
+          tag?: string
           title: string
           updated_at?: string
         }
@@ -187,6 +189,7 @@ export type Database = {
           is_sealed?: boolean
           published_at?: string | null
           status?: string
+          tag?: string
           title?: string
           updated_at?: string
         }

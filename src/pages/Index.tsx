@@ -1,13 +1,14 @@
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { Scroll } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { ScrollCard } from "@/components/ScrollCard";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { AlliancesWidget } from "@/components/AlliancesWidget";
 import { PledgeAllianceModal } from "@/components/PledgeAllianceModal";
+import { ChroniclesFilter } from "@/components/ChroniclesFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Input } from "@/components/ui/input";
 import { trackPageView } from "@/lib/analytics";
 import { toast } from "sonner";
@@ -25,6 +26,7 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const [showAllianceModal, setShowAllianceModal] = useState(false);
+  const [activeTag, setActiveTag] = useState("All");
 
   useEffect(() => {
     trackPageView();
@@ -183,41 +185,64 @@ const Index = () => {
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="mb-10"
+            className="mb-6"
           >
             <h2
               className="mb-1 font-serif-display text-2xl font-bold"
               style={{ color: "#EBEBEB" }}
             >
-              Publications
+              Chronicles
             </h2>
             <p className="text-sm" style={{ color: "#52525B" }}>
               Les derniers articles publiés.
             </p>
           </motion.div>
 
-          <div className="flex flex-col gap-px" style={{ borderTop: "1px solid #1A1A1A" }}>
-            {scrolls.map((scroll, i) => (
-              <motion.div
-                key={scroll.id}
-                custom={i}
-                initial="hidden"
-                whileInView="visible"
-                viewport={{ once: true }}
-                variants={fadeUp}
-              >
-                <ScrollCard
-                  id={scroll.id}
-                  title={scroll.title}
-                  excerpt={scroll.excerpt}
-                  is_sealed={scroll.is_sealed}
-                  published_at={scroll.published_at}
-                  author_name={scroll.author_name}
-                  featured={false}
-                />
-              </motion.div>
-            ))}
+          <div className="mb-8">
+            <ChroniclesFilter
+              tags={(() => {
+                const unique = [...new Set(scrolls.map((s) => (s as any).tag).filter((t: string) => t && t !== "general"))];
+                return unique;
+              })()}
+              activeTag={activeTag}
+              onTagChange={setActiveTag}
+            />
           </div>
+
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={activeTag}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.2, ease: "easeInOut" }}
+              className="flex flex-col gap-px"
+              style={{ borderTop: "1px solid #1A1A1A" }}
+            >
+              {scrolls
+                .filter((s) => activeTag === "All" || (s as any).tag === activeTag)
+                .map((scroll, i) => (
+                  <motion.div
+                    key={scroll.id}
+                    custom={i}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                  >
+                    <ScrollCard
+                      id={scroll.id}
+                      title={scroll.title}
+                      excerpt={scroll.excerpt}
+                      is_sealed={scroll.is_sealed}
+                      published_at={scroll.published_at}
+                      author_name={scroll.author_name}
+                      featured={false}
+                    />
+                  </motion.div>
+                ))}
+            </motion.div>
+          </AnimatePresence>
         </section>
       )}
 

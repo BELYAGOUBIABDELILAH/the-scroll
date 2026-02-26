@@ -19,6 +19,7 @@ const ScrollEditor = () => {
 
   const [title, setTitle] = useState("");
   const [content, setContent] = useState("");
+  const [tag, setTag] = useState("general");
   const [isSealed, setIsSealed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [dispatching, setDispatching] = useState(false);
@@ -41,6 +42,7 @@ const ScrollEditor = () => {
       }
       setTitle(data.title);
       setContent(data.content);
+      setTag((data as any).tag ?? "general");
       setIsSealed(data.is_sealed);
       setLoaded(true);
     };
@@ -66,13 +68,13 @@ const ScrollEditor = () => {
       if (id) {
         const { error } = await supabase
           .from("scrolls")
-          .update({ title, content, excerpt, is_sealed: isSealed })
+          .update({ title, content, excerpt, is_sealed: isSealed, tag } as any)
           .eq("id", id);
         if (error) throw error;
       } else {
         const { data, error } = await supabase
           .from("scrolls")
-          .insert({ title, content, excerpt, is_sealed: isSealed, author_id: user.id })
+          .insert({ title, content, excerpt, is_sealed: isSealed, tag, author_id: user.id } as any)
           .select("id")
           .single();
         if (error) throw error;
@@ -103,9 +105,10 @@ const ScrollEditor = () => {
             content,
             excerpt,
             is_sealed: isSealed,
+            tag,
             status: "published",
             published_at: new Date().toISOString(),
-          })
+          } as any)
           .eq("id", id);
         if (error) throw error;
       } else {
@@ -114,10 +117,11 @@ const ScrollEditor = () => {
           content,
           excerpt,
           is_sealed: isSealed,
+          tag,
           author_id: user.id,
           status: "published",
           published_at: new Date().toISOString(),
-        });
+        } as any);
         if (error) throw error;
       }
       toast({ title: "Scroll dispatched!", description: "Your raven has taken flight." });
@@ -148,6 +152,17 @@ const ScrollEditor = () => {
           placeholder="Title of your scroll…"
           className="mb-6 border-none bg-transparent font-serif text-3xl font-bold text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-0 p-0 h-auto"
         />
+
+        {/* Tag */}
+        <div className="mb-6 flex items-center gap-2">
+          <Label className="text-sm text-muted-foreground shrink-0">Tag</Label>
+          <Input
+            value={tag}
+            onChange={(e) => setTag(e.target.value)}
+            placeholder="e.g. tactics, lore, decrees"
+            className="max-w-[200px] h-8 text-sm border-border bg-card text-foreground"
+          />
+        </div>
 
         {/* Content */}
         <Textarea
