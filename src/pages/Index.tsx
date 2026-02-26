@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Feather, BookOpen, Shield, Scroll } from "lucide-react";
 import { Link } from "react-router-dom";
+import { Navbar } from "@/components/Navbar";
 
 const MOCK_SCROLLS = [
   { id: 1, title: "The Weight of the Iron Crown", author: "Vaelys Blackthorn", excerpt: "Power is not given. It is forged in fire, tempered with blood, and worn until it breaks you…", sealed: false, date: "3 days ago" },
@@ -24,23 +25,7 @@ const fadeUp = {
 const Index = () => {
   return (
     <div className="min-h-screen bg-background">
-      {/* Nav */}
-      <nav className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
-        <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-          <Link to="/" className="flex items-center gap-2">
-            <Scroll className="h-5 w-5 text-primary" />
-            <span className="font-serif text-xl font-bold tracking-wide text-foreground">The Scroll</span>
-          </Link>
-          <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-              <Link to="/auth">Read the Scrolls</Link>
-            </Button>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/80" asChild>
-              <Link to="/auth">Enter the Keep</Link>
-            </Button>
-          </div>
-        </div>
-      </nav>
+      <Navbar />
 
       {/* Hero */}
       <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-16">
