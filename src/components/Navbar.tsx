@@ -3,7 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scroll, LogOut } from "lucide-react";
+import { Scroll, LogOut, Settings } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 export const Navbar = () => {
@@ -46,7 +46,9 @@ export const Navbar = () => {
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
               )}
-              <span className="hidden text-sm text-foreground sm:inline">{displayName}</span>
+              <Link to="/settings" className="hidden text-sm text-foreground hover:text-primary transition-colors sm:inline">
+                {displayName}
+              </Link>
               {role && (
                 <Badge
                   variant="outline"

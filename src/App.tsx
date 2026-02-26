@@ -11,6 +11,7 @@ import ResetPassword from "./pages/ResetPassword";
 import ScrollView from "./pages/ScrollView";
 import Dashboard from "./pages/Dashboard";
 import ScrollEditor from "./pages/ScrollEditor";
+import Settings from "./pages/Settings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -30,6 +31,7 @@ const App = () => (
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/write" element={<ProtectedRoute><ScrollEditor /></ProtectedRoute>} />
             <Route path="/dashboard/edit/:id" element={<ProtectedRoute><ScrollEditor /></ProtectedRoute>} />
+            <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
