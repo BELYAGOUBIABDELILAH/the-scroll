@@ -5,13 +5,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
 import { DashboardAnalytics } from "@/components/DashboardAnalytics";
+import { AllianceManager } from "@/components/AllianceManager";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Feather, Trash2, Eye, EyeOff, Mail, Users } from "lucide-react";
+import { Feather, Trash2, Eye, EyeOff, Mail, Users, Handshake } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
-type Tab = "drafts" | "published" | "bannermen";
+type Tab = "drafts" | "published" | "bannermen" | "alliances";
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -115,6 +116,7 @@ const Dashboard = () => {
     { key: "drafts", label: "Drafts" },
     { key: "published", label: "Published" },
     { key: "bannermen", label: "Bannermen" },
+    { key: "alliances", label: "Alliances" },
   ];
 
   return (
@@ -292,6 +294,9 @@ const Dashboard = () => {
             </div>
           </div>
         )}
+
+        {/* Alliances */}
+        {tab === "alliances" && <AllianceManager />}
       </div>
     </div>
   );
