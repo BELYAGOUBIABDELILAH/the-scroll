@@ -6,10 +6,16 @@ import { MarkdownRenderer } from "@/components/MarkdownRenderer";
 import { ArrowLeft, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { format } from "date-fns";
+import { useEffect } from "react";
+import { trackScrollView } from "@/lib/analytics";
 
 const ScrollView = () => {
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
+
+  useEffect(() => {
+    if (id) trackScrollView(id);
+  }, [id]);
 
   const { data: scroll, isLoading } = useQuery({
     queryKey: ["scroll", id],
