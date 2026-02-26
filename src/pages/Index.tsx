@@ -1,20 +1,20 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Scroll, Lock, Users, MessageSquare, Flame } from "lucide-react";
+import { Lock, Users, MessageSquare, Flame, BookOpen, Feather } from "lucide-react";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Testimonials } from "@/components/Testimonials";
+import { Footer } from "@/components/Footer";
+import { TopicBar } from "@/components/TopicBar";
+import { FeedCard } from "@/components/FeedCard";
+import { RecommendedSidebar } from "@/components/RecommendedSidebar";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
-import { ScrollCard } from "@/components/ScrollCard";
 import { AlliancesWidget } from "@/components/AlliancesWidget";
 import { PledgeAllianceModal } from "@/components/PledgeAllianceModal";
-import { ChroniclesFilter } from "@/components/ChroniclesFilter";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState, useEffect } from "react";
-import { Input } from "@/components/ui/input";
+import { useState, useEffect, useMemo } from "react";
 import { trackPageView } from "@/lib/analytics";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -24,7 +24,6 @@ const fadeUp = {
     transition: { delay: i * 0.1, duration: 0.6, ease: [0.22, 1, 0.36, 1] as const },
   }),
 };
-
 
 const featurePanels = [
   {
@@ -44,11 +43,17 @@ const featurePanels = [
   },
 ];
 
+const stats = [
+  { label: "Writers", value: "500+" },
+  { label: "Posts Published", value: "10K+" },
+  { label: "Readers", value: "50K+" },
+];
+
 const Index = () => {
-  const [email, setEmail] = useState("");
-  const [subscribing, setSubscribing] = useState(false);
   const [showAllianceModal, setShowAllianceModal] = useState(false);
   const [activeTag, setActiveTag] = useState("All");
+  const [sortBy, setSortBy] = useState("latest");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     trackPageView();
@@ -85,99 +90,79 @@ const Index = () => {
       const authorIds = [...new Set(data.map((s) => s.author_id))];
       const { data: profiles } = await supabase
         .from("profiles")
-        .select("user_id, display_name")
-        .in("user_id", authorIds);
-
-      const profileMap = new Map(
-        (profiles ?? []).map((p) => [p.user_id, p.display_name ?? "Anonyme"])
-      );
-
-      return data.map((s) => ({
-        ...s,
-        author_name: profileMap.get(s.author_id) ?? "Anonyme",
-      }));
-    },
-  });
-
-  const { data: trendingScrolls = [] } = useQuery({
-    queryKey: ["trending-scrolls"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("scrolls")
-        .select("id, title, tag, author_id")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(6);
-      if (!data?.length) return [];
-
-      const authorIds = [...new Set(data.map((s) => s.author_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
         .select("user_id, display_name, avatar_url")
         .in("user_id", authorIds);
+
       const profileMap = new Map(
-        (profiles ?? []).map((p) => [p.user_id, p])
+        (profiles ?? []).map((p) => [p.user_id, { name: p.display_name ?? "Anonymous", avatar: p.avatar_url }])
       );
 
+      // Get comment counts
       const scrollIds = data.map((s) => s.id);
-      const { data: events } = await supabase
-        .from("analytics_events")
+      const { data: comments } = await supabase
+        .from("comments")
         .select("scroll_id")
-        .in("scroll_id", scrollIds)
-        .eq("event_type", "scroll_view");
-      const viewMap: Record<string, number> = {};
-      (events ?? []).forEach((e) => {
-        if (e.scroll_id) viewMap[e.scroll_id] = (viewMap[e.scroll_id] ?? 0) + 1;
+        .in("scroll_id", scrollIds);
+      const commentMap: Record<string, number> = {};
+      (comments ?? []).forEach((c) => {
+        commentMap[c.scroll_id] = (commentMap[c.scroll_id] ?? 0) + 1;
       });
 
       return data.map((s) => ({
         ...s,
-        author_name: profileMap.get(s.author_id)?.display_name ?? "Anonyme",
-        author_avatar: profileMap.get(s.author_id)?.avatar_url ?? null,
-        readers: viewMap[s.id] ?? 0,
+        author_name: profileMap.get(s.author_id)?.name ?? "Anonymous",
+        author_avatar: profileMap.get(s.author_id)?.avatar ?? null,
+        comment_count: commentMap[s.id] ?? 0,
       }));
     },
   });
 
-  const handleSubscribe = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setSubscribing(true);
-    try {
-      const { error } = await supabase
-        .from("email_subscribers")
-        .insert({ email: email.trim().toLowerCase() });
-      if (error) {
-        if (error.code === "23505") {
-          toast.success("Already subscribed!");
-        } else {
-          throw error;
-        }
-      } else {
-        toast.success("Welcome to the realm.");
-      }
-      setEmail("");
-      setShowAllianceModal(true);
-    } catch {
-      toast.error("Something went wrong. Try again.");
-    } finally {
-      setSubscribing(false);
+  const tags = useMemo(() => {
+    if (!scrolls) return [];
+    return [...new Set(scrolls.map((s) => s.tag).filter((t) => t && t !== "general"))];
+  }, [scrolls]);
+
+  const filteredScrolls = useMemo(() => {
+    if (!scrolls) return [];
+    let filtered = scrolls;
+
+    // Tag filter
+    if (activeTag !== "All") {
+      filtered = filtered.filter((s) => s.tag === activeTag);
     }
-  };
+
+    // Search filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      filtered = filtered.filter(
+        (s) =>
+          s.title.toLowerCase().includes(q) ||
+          s.excerpt?.toLowerCase().includes(q) ||
+          s.author_name.toLowerCase().includes(q)
+      );
+    }
+
+    // Sort
+    if (sortBy === "popular") {
+      filtered = [...filtered].sort((a, b) => (b.comment_count ?? 0) - (a.comment_count ?? 0));
+    }
+    // "trending" and "latest" both use default published_at desc
+
+    return filtered;
+  }, [scrolls, activeTag, searchQuery, sortBy]);
 
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* ═══════════════════════════════════════════
-          HERO
+          HERO — Clean Substack-style
       ═══════════════════════════════════════════ */}
-      <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-20">
-        {/* Subtle radial glow */}
+      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pt-20">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
             className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[200px]"
-            style={{ backgroundColor: "hsla(0, 72%, 45%, 0.05)" }}
+            style={{ backgroundColor: "hsla(0, 72%, 45%, 0.04)" }}
           />
         </div>
 
@@ -187,181 +172,147 @@ const Index = () => {
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
         >
+          <motion.div variants={fadeUp} custom={0} className="mb-6 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5">
+            <Feather className="h-3.5 w-3.5 text-primary" />
+            <span className="text-xs font-medium text-muted-foreground">The sovereign publishing platform</span>
+          </motion.div>
+
           <motion.h1
             variants={fadeUp}
-            custom={0}
-            className="mb-6 font-serif text-5xl font-bold leading-[1.1] tracking-tight text-foreground md:text-7xl"
+            custom={1}
+            className="mb-6 font-serif text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-7xl"
           >
-            Rule Your Realm.
+            A place for
             <br />
-            Own Your Audience.
+            independent writing
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
-            custom={1}
-            className="mb-12 max-w-lg text-lg leading-relaxed text-muted-foreground"
+            custom={2}
+            className="mb-10 max-w-md text-lg leading-relaxed text-muted-foreground"
           >
-            The minimalist publishing network for elite writers and their loyal bannermen.
+            Start a publication. Build your audience. Own your creative future — no algorithms, no gatekeepers.
           </motion.p>
 
-          <motion.form
-            variants={fadeUp}
-            custom={2}
-            onSubmit={handleSubscribe}
-            className="flex w-full max-w-md gap-0 overflow-hidden rounded-lg border border-border"
-          >
-            <Input
-              type="email"
-              placeholder="your@email.com"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              required
-              className="flex-1 rounded-none border-0 bg-card text-foreground placeholder:text-muted-foreground/50 focus-visible:ring-0 focus-visible:ring-offset-0 h-12 px-4"
-            />
-            <button
-              type="submit"
-              disabled={subscribing}
-              className="shrink-0 bg-primary px-6 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          <motion.div variants={fadeUp} custom={3} className="flex items-center gap-4">
+            <Link
+              to="/auth"
+              className="inline-flex h-12 items-center rounded-lg bg-primary px-8 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
             >
-              {subscribing ? "…" : "Claim Your Publication"}
+              Get Started
+            </Link>
+            <button
+              onClick={() => document.getElementById("chronicles")?.scrollIntoView({ behavior: "smooth" })}
+              className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline transition-colors"
+            >
+              Explore posts
             </button>
-          </motion.form>
+          </motion.div>
+        </motion.div>
+
+        {/* Social proof bar */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.8, duration: 0.6 }}
+          className="relative z-10 mt-16 flex items-center gap-8 md:gap-12"
+        >
+          {stats.map((stat) => (
+            <div key={stat.label} className="text-center">
+              <p className="font-serif text-2xl font-bold text-foreground">{stat.value}</p>
+              <p className="text-xs text-muted-foreground">{stat.label}</p>
+            </div>
+          ))}
         </motion.div>
       </section>
 
       {/* ═══════════════════════════════════════════
-          THE GREAT HALL — Trending Grid
+          FEED — 2-column Substack layout
       ═══════════════════════════════════════════ */}
-      <section id="chronicles" className="mx-auto max-w-5xl px-6 pb-32">
+      <section id="chronicles" className="mx-auto max-w-6xl px-6 py-20">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-10"
+          className="mb-8"
         >
-          <h2 className="mb-2 font-serif text-3xl font-bold text-foreground">The Great Hall</h2>
-          <p className="text-sm text-muted-foreground">Trending scrolls across the realm.</p>
+          <h2 className="mb-1 font-serif text-3xl font-bold text-foreground">Popular on The Scroll</h2>
+          <p className="text-sm text-muted-foreground">Discover writers and ideas that matter.</p>
         </motion.div>
 
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {trendingScrolls.map((item, i) => (
-            <motion.div
-              key={item.id}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="group rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20"
-            >
-              <Link
-                to={`/scribe/${item.author_id}`}
-                className="mb-4 flex items-center gap-3 hover:opacity-70 transition-opacity"
-                onClick={(e) => e.stopPropagation()}
+        {/* Topic bar with search and sort */}
+        <div className="mb-8">
+          <TopicBar
+            tags={tags}
+            activeTag={activeTag}
+            onTagChange={setActiveTag}
+            sortBy={sortBy}
+            onSortChange={setSortBy}
+            searchQuery={searchQuery}
+            onSearchChange={setSearchQuery}
+          />
+        </div>
+
+        {/* 2-column layout */}
+        <div className="grid gap-8 lg:grid-cols-3">
+          {/* Main feed */}
+          <div className="lg:col-span-2">
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={activeTag + sortBy + searchQuery}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.2 }}
+                className="space-y-4"
               >
-                <Avatar className="h-8 w-8" style={{ filter: "grayscale(100%)" }}>
-                  {item.author_avatar ? (
-                    <AvatarImage src={item.author_avatar} alt={item.author_name} />
-                  ) : null}
-                  <AvatarFallback className="bg-secondary text-xs text-muted-foreground">
-                    {item.author_name[0]}
-                  </AvatarFallback>
-                </Avatar>
-                <span className="text-sm font-medium text-muted-foreground">{item.author_name}</span>
-              </Link>
+                {filteredScrolls.length === 0 ? (
+                  <div className="rounded-xl border border-border bg-card p-12 text-center">
+                    <BookOpen className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+                    <p className="text-muted-foreground">No posts found.</p>
+                  </div>
+                ) : (
+                  filteredScrolls.map((scroll, i) => (
+                    <motion.div
+                      key={scroll.id}
+                      custom={i}
+                      initial="hidden"
+                      whileInView="visible"
+                      viewport={{ once: true }}
+                      variants={fadeUp}
+                    >
+                      <FeedCard
+                        id={scroll.id}
+                        title={scroll.title}
+                        excerpt={scroll.excerpt}
+                        is_sealed={scroll.is_sealed}
+                        published_at={scroll.published_at}
+                        author_name={scroll.author_name}
+                        author_id={scroll.author_id}
+                        author_avatar={scroll.author_avatar}
+                        tag={scroll.tag}
+                        comment_count={scroll.comment_count}
+                      />
+                    </motion.div>
+                  ))
+                )}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-              <h3 className="mb-3 font-serif text-lg font-bold leading-snug text-foreground group-hover:text-foreground/90 transition-colors">
-                {item.title}
-              </h3>
-
-              <div className="flex items-center justify-between">
-                <span
-                  className="rounded-full px-2.5 py-0.5 text-xs font-medium"
-                  style={{ backgroundColor: "#18181B", color: "#A1A1AA", border: "1px solid #27272A" }}
-                >
-                  {item.tag}
-                </span>
-                <span className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Flame className="h-3 w-3 text-primary" />
-                  {item.readers} Readers
-                </span>
-              </div>
-            </motion.div>
-          ))}
+          {/* Sidebar */}
+          <div className="hidden lg:block">
+            <RecommendedSidebar />
+          </div>
         </div>
       </section>
 
       {/* ═══════════════════════════════════════════
-          CHRONICLES — Real Scrolls Feed
+          FEATURES
       ═══════════════════════════════════════════ */}
-      {scrolls && scrolls.length > 0 && (
-        <section className="mx-auto max-w-[700px] px-6 pb-24">
-          <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8 }}
-            className="mb-6"
-          >
-            <h2 className="mb-1 font-serif text-2xl font-bold text-foreground">Chronicles</h2>
-            <p className="text-sm text-muted-foreground">Latest published scrolls.</p>
-          </motion.div>
-
-          <div className="mb-8">
-            <ChroniclesFilter
-              tags={(() => {
-                const unique = [...new Set(scrolls.map((s) => (s as any).tag).filter((t: string) => t && t !== "general"))];
-                return unique;
-              })()}
-              activeTag={activeTag}
-              onTagChange={setActiveTag}
-            />
-          </div>
-
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={activeTag}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2, ease: "easeInOut" }}
-              className="flex flex-col gap-px border-t border-border"
-            >
-              {scrolls
-                .filter((s) => activeTag === "All" || (s as any).tag === activeTag)
-                .map((scroll, i) => (
-                  <motion.div
-                    key={scroll.id}
-                    custom={i}
-                    initial="hidden"
-                    whileInView="visible"
-                    viewport={{ once: true }}
-                    variants={fadeUp}
-                  >
-                    <ScrollCard
-                      id={scroll.id}
-                      title={scroll.title}
-                      excerpt={scroll.excerpt}
-                      is_sealed={scroll.is_sealed}
-                      published_at={scroll.published_at}
-                      author_name={scroll.author_name}
-                      author_id={scroll.author_id}
-                      tag={(scroll as any).tag}
-                      featured={false}
-                    />
-                  </motion.div>
-                ))}
-            </motion.div>
-          </AnimatePresence>
-        </section>
-      )}
-
-      {/* ═══════════════════════════════════════════
-          FEATURES — The Mechanics
-      ═══════════════════════════════════════════ */}
-      <section id="features" className="mx-auto max-w-5xl px-6 pb-32">
+      <section id="features" className="mx-auto max-w-5xl px-6 pb-24">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -392,26 +343,16 @@ const Index = () => {
         </div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          HOW IT WORKS
-      ═══════════════════════════════════════════ */}
       <HowItWorks />
-
-      {/* ═══════════════════════════════════════════
-          TESTIMONIALS
-      ═══════════════════════════════════════════ */}
       <Testimonials />
 
-      {/* ═══════════════════════════════════════════
-          ALLIANCES
-      ═══════════════════════════════════════════ */}
+      {/* Alliances */}
       {scribe && (
         <section id="council" className="mx-auto max-w-[700px] px-6 pb-16">
           <AlliancesWidget scribeId={scribe.user_id} />
         </section>
       )}
 
-      {/* Pledge Alliance Modal */}
       {scribe && (
         <PledgeAllianceModal
           scribeId={scribe.user_id}
@@ -430,7 +371,6 @@ const Index = () => {
             style={{ backgroundColor: "hsla(0, 72%, 45%, 0.06)" }}
           />
         </div>
-
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -453,25 +393,7 @@ const Index = () => {
         </motion.div>
       </section>
 
-      {/* ═══════════════════════════════════════════
-          FOOTER
-      ═══════════════════════════════════════════ */}
-      <footer className="border-t border-border py-12">
-        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-6 px-6 md:flex-row">
-          <div className="flex items-center gap-2.5">
-            <Scroll className="h-4 w-4 text-primary" />
-            <span className="font-serif text-sm font-semibold text-muted-foreground">The Scroll</span>
-          </div>
-
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Terms</a>
-            <a href="#" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Privacy</a>
-            <a href="#" className="text-xs text-muted-foreground transition-colors hover:text-foreground">Twitter</a>
-          </div>
-
-          <p className="text-xs text-muted-foreground/50">© {new Date().getFullYear()} The Scroll</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 };

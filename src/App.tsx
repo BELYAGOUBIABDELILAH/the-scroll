@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import ResetPassword from "./pages/ResetPassword";
 import ScrollView from "./pages/ScrollView";
 import Dashboard from "./pages/Dashboard";
+import Feed from "./pages/Feed";
 import ScrollEditor from "./pages/ScrollEditor";
 import Settings from "./pages/Settings";
 import WriterProfile from "./pages/WriterProfile";
@@ -34,6 +35,7 @@ const App = () => (
             <Route path="/dashboard/write" element={<ProtectedRoute><ScrollEditor /></ProtectedRoute>} />
             <Route path="/dashboard/edit/:id" element={<ProtectedRoute><ScrollEditor /></ProtectedRoute>} />
             <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
+            <Route path="/feed" element={<ProtectedRoute><Feed /></ProtectedRoute>} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
