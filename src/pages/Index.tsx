@@ -421,6 +421,39 @@ const Index = () => {
       )}
 
       {/* ═══════════════════════════════════════════
+          FINAL CTA
+      ═══════════════════════════════════════════ */}
+      <section className="relative overflow-hidden border-t border-border py-32">
+        <div className="pointer-events-none absolute inset-0">
+          <div
+            className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[200px]"
+            style={{ backgroundColor: "hsla(0, 72%, 45%, 0.06)" }}
+          />
+        </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+          className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center px-6"
+        >
+          <h2 className="mb-4 font-serif text-4xl font-bold leading-tight text-foreground md:text-5xl">
+            Your Realm Awaits.
+          </h2>
+          <p className="mb-10 max-w-md text-base leading-relaxed text-muted-foreground">
+            Join the scribes who chose sovereignty over algorithms. Start publishing on your own terms — free, forever.
+          </p>
+          <Link
+            to="/auth"
+            className="inline-flex h-12 items-center rounded-lg bg-primary px-8 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+          >
+            Start Your Scroll — It's Free
+          </Link>
+        </motion.div>
+      </section>
+
+      {/* ═══════════════════════════════════════════
           FOOTER
       ═══════════════════════════════════════════ */}
       <footer className="border-t border-border py-12">
