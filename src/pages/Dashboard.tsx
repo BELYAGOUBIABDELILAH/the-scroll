@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { DashboardSidebar, SIDEBAR_MARGIN } from "@/components/DashboardSidebar";
 import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { AllianceManager } from "@/components/AllianceManager";
 import { Button } from "@/components/ui/button";
@@ -123,7 +123,7 @@ const Dashboard = () => {
       <DashboardSidebar activeTab={tab} onTabChange={(t) => setTab(t as Tab)} />
 
       {/* Main content — offset by sidebar width */}
-      <main className="ml-56 flex-1 px-8 py-8">
+      <main className={`flex-1 px-6 py-8 pt-16 md:pt-8 ${SIDEBAR_MARGIN}`}>
         {/* Header */}
         <div className="mb-8">
           <h1 className="font-serif text-3xl font-bold text-foreground">{tabTitles[tab]}</h1>

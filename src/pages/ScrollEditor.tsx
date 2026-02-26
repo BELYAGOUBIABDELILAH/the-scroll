@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { DashboardSidebar, SIDEBAR_MARGIN } from "@/components/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -139,7 +139,7 @@ const ScrollEditor = () => {
     <div className="flex min-h-screen bg-background">
       <DashboardSidebar activeTab="drafts" onTabChange={() => navigate("/dashboard")} />
 
-      <main className="ml-56 flex-1">
+      <main className={`flex-1 ${SIDEBAR_MARGIN}`}>
         {/* Top bar with tag + actions */}
         <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-8 py-3">
           <div className="flex items-center gap-3">
