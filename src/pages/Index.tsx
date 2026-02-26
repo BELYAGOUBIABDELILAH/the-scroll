@@ -1,5 +1,4 @@
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
 import { Scroll } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { ScrollCard } from "@/components/ScrollCard";
@@ -7,9 +6,9 @@ import { AvatarUpload } from "@/components/AvatarUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
-import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
 import { trackPageView } from "@/lib/analytics";
+import { toast } from "sonner";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -23,13 +22,11 @@ const fadeUp = {
 const Index = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
-  const { toast } = useToast();
 
   useEffect(() => {
     trackPageView();
   }, []);
 
-  // Fetch the first scribe's profile for the hero
   const { data: scribe } = useQuery({
     queryKey: ["scribe-profile"],
     queryFn: async () => {
@@ -48,7 +45,6 @@ const Index = () => {
     },
   });
 
-  // Fetch published scrolls with author names
   const { data: scrolls } = useQuery({
     queryKey: ["published-scrolls"],
     queryFn: async () => {
@@ -59,7 +55,6 @@ const Index = () => {
         .order("published_at", { ascending: false });
       if (!data?.length) return [];
 
-      // Get author profiles
       const authorIds = [...new Set(data.map((s) => s.author_id))];
       const { data: profiles } = await supabase
         .from("profiles")
@@ -67,12 +62,12 @@ const Index = () => {
         .in("user_id", authorIds);
 
       const profileMap = new Map(
-        (profiles ?? []).map((p) => [p.user_id, p.display_name ?? "Unknown"])
+        (profiles ?? []).map((p) => [p.user_id, p.display_name ?? "Anonyme"])
       );
 
       return data.map((s) => ({
         ...s,
-        author_name: profileMap.get(s.author_id) ?? "Unknown",
+        author_name: profileMap.get(s.author_id) ?? "Anonyme",
       }));
     },
   });
@@ -87,33 +82,37 @@ const Index = () => {
         .insert({ email: email.trim().toLowerCase() });
       if (error) {
         if (error.code === "23505") {
-          toast({ title: "Already pledged!", description: "This email has already sworn fealty." });
+          toast.success("Vous êtes déjà abonné !");
         } else {
           throw error;
         }
       } else {
-        toast({ title: "Fealty pledged!", description: "You'll receive new scrolls by raven." });
+        toast.success("Abonnement confirmé. Bienvenue.");
       }
       setEmail("");
     } catch (error: any) {
-      toast({ title: "Failed to pledge", description: error.message, variant: "destructive" });
+      toast.error("Une erreur est survenue. Réessayez.");
     } finally {
       setSubscribing(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen" style={{ backgroundColor: "#080808" }}>
       <Navbar />
 
       {/* Hero */}
-      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pt-16">
+      <section className="relative flex min-h-[75vh] flex-col items-center justify-center px-6 pt-20">
+        {/* Subtle glow */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
-          <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px] animate-ember-glow" />
+          <div
+            className="absolute left-1/2 top-1/3 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[160px]"
+            style={{ backgroundColor: "hsla(0, 72%, 45%, 0.06)" }}
+          />
         </div>
 
         <motion.div
-          className="relative z-10 flex max-w-xl flex-col items-center text-center"
+          className="relative z-10 flex max-w-lg flex-col items-center text-center"
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
@@ -129,14 +128,20 @@ const Index = () => {
           <motion.h1
             variants={fadeUp}
             custom={1}
-            className="mb-2 font-serif text-4xl font-bold text-foreground md:text-5xl"
+            className="mb-3 font-serif-display text-4xl font-bold tracking-tight md:text-5xl"
+            style={{ color: "#EBEBEB" }}
           >
             {scribe?.display_name ?? "The Scroll"}
           </motion.h1>
 
-          <motion.p variants={fadeUp} custom={2} className="mb-8 max-w-md text-muted-foreground leading-relaxed">
+          <motion.p
+            variants={fadeUp}
+            custom={2}
+            className="mb-10 max-w-md text-base leading-[1.7]"
+            style={{ color: "#71717A" }}
+          >
             {scribe?.bio ??
-              "An exclusive publishing chamber for writers who craft words worth sealing. Subscribe to receive new scrolls by raven."}
+              "Un espace d'écriture exclusive. Abonnez-vous pour recevoir chaque nouvelle publication."}
           </motion.p>
 
           <motion.form
@@ -147,38 +152,47 @@ const Index = () => {
           >
             <Input
               type="email"
-              placeholder="your@email.com"
+              placeholder="votre@email.com"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
+              className="flex-1 border-[#1A1A1A] bg-[#0D0D0D] placeholder:text-[#52525B]"
+              style={{ color: "#E5E5E5" }}
             />
-            <Button
+            <button
               type="submit"
               disabled={subscribing}
-              className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/80"
+              className="shrink-0 rounded-md px-5 py-2 text-sm font-medium transition-opacity disabled:opacity-50"
+              style={{ backgroundColor: "#8B0000", color: "#F5F5F5" }}
             >
-              Pledge Fealty
-            </Button>
+              {subscribing ? "…" : "S'abonner"}
+            </button>
           </motion.form>
         </motion.div>
       </section>
 
       {/* Scrolls Feed */}
       {scrolls && scrolls.length > 0 && (
-        <section className="mx-auto max-w-6xl px-6 pb-24">
+        <section className="mx-auto max-w-[700px] px-6 pb-24">
           <motion.div
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8 }}
-            className="mb-12 text-center"
+            className="mb-10"
           >
-            <h2 className="mb-3 font-serif text-3xl font-bold text-foreground">Recent Scrolls</h2>
-            <p className="text-muted-foreground">From the quills of our scribes.</p>
+            <h2
+              className="mb-1 font-serif-display text-2xl font-bold"
+              style={{ color: "#EBEBEB" }}
+            >
+              Publications
+            </h2>
+            <p className="text-sm" style={{ color: "#52525B" }}>
+              Les derniers articles publiés.
+            </p>
           </motion.div>
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="flex flex-col gap-px" style={{ borderTop: "1px solid #1A1A1A" }}>
             {scrolls.map((scroll, i) => (
               <motion.div
                 key={scroll.id}
@@ -195,7 +209,7 @@ const Index = () => {
                   is_sealed={scroll.is_sealed}
                   published_at={scroll.published_at}
                   author_name={scroll.author_name}
-                  featured={i === 0}
+                  featured={false}
                 />
               </motion.div>
             ))}
@@ -206,20 +220,22 @@ const Index = () => {
       {/* Empty state */}
       {scrolls && scrolls.length === 0 && (
         <section className="mx-auto max-w-md px-6 pb-24 text-center">
-          <Scroll className="mx-auto mb-4 h-10 w-10 text-muted-foreground/30" />
-          <p className="text-muted-foreground">No scrolls have been published yet. Check back soon.</p>
+          <Scroll className="mx-auto mb-4 h-10 w-10" style={{ color: "#27272A" }} />
+          <p style={{ color: "#52525B" }}>Aucune publication pour le moment.</p>
         </section>
       )}
 
       {/* Footer */}
-      <footer className="border-t border-border py-12">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 md:flex-row">
+      <footer className="py-12" style={{ borderTop: "1px solid #1A1A1A" }}>
+        <div className="mx-auto flex max-w-[700px] flex-col items-center justify-between gap-4 px-6 md:flex-row">
           <div className="flex items-center gap-2">
-            <Scroll className="h-4 w-4 text-primary" />
-            <span className="font-serif text-sm font-semibold text-foreground">The Scroll</span>
+            <Scroll className="h-4 w-4" style={{ color: "#8B0000" }} />
+            <span className="font-serif-display text-sm font-semibold" style={{ color: "#A1A1AA" }}>
+              The Scroll
+            </span>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Seal your words. Send your ravens. © {new Date().getFullYear()}
+          <p className="text-xs" style={{ color: "#3F3F46" }}>
+            © {new Date().getFullYear()}
           </p>
         </div>
       </footer>

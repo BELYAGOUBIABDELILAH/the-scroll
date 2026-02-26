@@ -18,51 +18,47 @@ export const ScrollCard = ({
   is_sealed,
   published_at,
   author_name,
-  featured = false,
 }: ScrollCardProps) => {
   return (
     <Link
       to={`/scroll/${id}`}
-      className={`group block rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30 hover:bg-card/80 ${
-        featured ? "sm:col-span-2 lg:col-span-2 lg:row-span-2 lg:p-10" : ""
-      }`}
+      className="group block py-6 transition-colors"
+      style={{ borderBottom: "1px solid #1A1A1A" }}
     >
-      <div className="mb-3 flex items-center gap-2">
-        {is_sealed && (
-          <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-            Sealed
-          </span>
-        )}
-        {!is_sealed && (
-          <span className="rounded-full border border-scroll-gold/30 bg-scroll-gold/10 px-2.5 py-0.5 text-xs font-medium text-scroll-gold">
-            Unsealed
-          </span>
-        )}
+      <div className="flex items-center gap-3 mb-2">
+        <span className="text-xs font-medium" style={{ color: "#52525B" }}>
+          {author_name}
+        </span>
         {published_at && (
-          <span className="text-xs text-muted-foreground">
-            {format(new Date(published_at), "MMM d, yyyy")}
-          </span>
+          <>
+            <span style={{ color: "#27272A" }}>·</span>
+            <span className="text-xs" style={{ color: "#3F3F46" }}>
+              {format(new Date(published_at), "d MMM yyyy")}
+            </span>
+          </>
+        )}
+        {is_sealed && (
+          <>
+            <span style={{ color: "#27272A" }}>·</span>
+            <span className="text-xs font-medium" style={{ color: "#8B0000" }}>
+              Scellé
+            </span>
+          </>
         )}
       </div>
+
       <h3
-        className={`mb-2 font-serif font-bold text-foreground ${
-          featured ? "text-2xl lg:text-3xl" : "text-lg"
-        }`}
+        className="font-serif-display text-lg font-bold mb-1 group-hover:opacity-80 transition-opacity"
+        style={{ color: "#EBEBEB" }}
       >
         {title}
       </h3>
+
       {excerpt && (
-        <p
-          className={`mb-4 line-clamp-2 leading-relaxed text-muted-foreground ${
-            featured ? "text-base" : "text-sm"
-          }`}
-        >
+        <p className="text-sm line-clamp-2 leading-relaxed" style={{ color: "#71717A" }}>
           {excerpt}
         </p>
       )}
-      <p className="text-xs font-medium text-muted-foreground">
-        by <span className="text-foreground">{author_name}</span>
-      </p>
     </Link>
   );
 };
