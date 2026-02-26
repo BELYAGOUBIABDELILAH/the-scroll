@@ -154,14 +154,27 @@ const ScrollEditor = () => {
         />
 
         {/* Tag */}
-        <div className="mb-6 flex items-center gap-2">
+        <div className="mb-6 flex items-center gap-2 flex-wrap">
           <Label className="text-sm text-muted-foreground shrink-0">Tag</Label>
-          <Input
-            value={tag}
-            onChange={(e) => setTag(e.target.value)}
-            placeholder="e.g. tactics, lore, decrees"
-            className="max-w-[200px] h-8 text-sm border-border bg-card text-foreground"
-          />
+          {["general", "tactics", "lore", "decrees", "chronicles"].map((t) => (
+            <button
+              key={t}
+              type="button"
+              onClick={() => setTag(t)}
+              className={`rounded-full px-3 py-1 text-sm font-medium capitalize transition-all duration-150 ${
+                tag === t
+                  ? "border text-white"
+                  : "border border-transparent text-muted-foreground"
+              }`}
+              style={
+                tag === t
+                  ? { backgroundColor: "#18181B", color: "#FFFFFF", borderColor: "#27272A" }
+                  : {}
+              }
+            >
+              {t}
+            </button>
+          ))}
         </div>
 
         {/* Content */}
