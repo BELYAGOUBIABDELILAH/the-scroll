@@ -225,10 +225,14 @@ const Index = () => {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.6 }}
-          className="mb-8"
+          className="mb-10 flex items-end justify-between gap-4"
         >
-          <h2 className="mb-1 font-serif text-3xl font-bold text-foreground">Popular on The Scroll</h2>
-          <p className="text-sm text-muted-foreground">Discover writers and ideas that matter.</p>
+          <div>
+            <span className="mb-2 inline-block font-mono text-[11px] font-semibold tracking-widest text-primary/60 uppercase">The Feed</span>
+            <h2 className="font-serif text-3xl font-bold text-foreground md:text-4xl">Popular on The Scroll</h2>
+            <p className="mt-1 text-sm text-muted-foreground/80">Discover writers and ideas that matter.</p>
+          </div>
+          <p className="hidden text-xs text-muted-foreground/50 sm:block">{filteredScrolls.length} posts</p>
         </motion.div>
 
         {/* Topic bar with search and sort */}
@@ -258,9 +262,20 @@ const Index = () => {
                 className="space-y-4"
               >
                 {filteredScrolls.length === 0 ? (
-                  <div className="rounded-xl border border-border bg-card p-12 text-center">
-                    <BookOpen className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
-                    <p className="text-muted-foreground">No posts found.</p>
+                  <div className="flex flex-col items-center rounded-2xl border border-dashed border-border/60 bg-card/50 p-16 text-center">
+                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/5">
+                      <BookOpen className="h-6 w-6 text-primary/40" />
+                    </div>
+                    <p className="font-serif text-lg font-semibold text-foreground/80">No posts found</p>
+                    <p className="mt-1 text-sm text-muted-foreground/60">Try a different search or topic filter.</p>
+                    {activeTag !== "All" && (
+                      <button
+                        onClick={() => setActiveTag("All")}
+                        className="mt-4 text-xs font-medium text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+                      >
+                        Clear filters
+                      </button>
+                    )}
                   </div>
                 ) : (
                   filteredScrolls.map((scroll, i) => (
