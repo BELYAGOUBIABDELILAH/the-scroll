@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Scroll, Twitter, Github, Mail, Heart, ArrowRight } from "lucide-react";
+import { Scroll, Instagram, Github, Mail, Heart, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -81,9 +81,9 @@ export const Footer = () => {
             </p>
             <div className="flex items-center gap-3">
               {[
-                { icon: Twitter, href: "#", label: "Twitter" },
-                { icon: Github, href: "#", label: "GitHub" },
-                { icon: Mail, href: "mailto:hello@thescroll.com", label: "Email" },
+                { icon: Instagram, href: "https://instagram.com/belyabdelilah", label: "Instagram" },
+                { icon: Github, href: "https://github.com/BELYAGOUBIABDELILAH", label: "GitHub" },
+                { icon: Mail, href: "mailto:belyagoubiabdillah@gmail.com", label: "Email" },
               ].map((social) => (
                 <a
                   key={social.label}
