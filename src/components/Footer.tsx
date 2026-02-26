@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { Scroll, Twitter, Github, Mail } from "lucide-react";
+import { Scroll, Twitter, Github, Mail, Heart, ArrowRight } from "lucide-react";
 import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -26,40 +26,87 @@ export const Footer = () => {
   };
 
   return (
-    <footer className="border-t border-border bg-card">
-      <div className="mx-auto max-w-6xl px-6 py-16">
-        <div className="grid gap-12 md:grid-cols-4">
-          {/* Brand */}
-          <div className="md:col-span-1">
-            <Link to="/" className="flex items-center gap-2 mb-4">
+    <footer className="relative border-t border-border bg-card overflow-hidden">
+      {/* Subtle glow */}
+      <div className="pointer-events-none absolute inset-0">
+        <div
+          className="absolute left-1/2 bottom-0 h-[400px] w-[600px] -translate-x-1/2 translate-y-1/2 rounded-full blur-[200px]"
+          style={{ backgroundColor: "hsla(0, 72%, 45%, 0.04)" }}
+        />
+      </div>
+
+      {/* Newsletter CTA band */}
+      <div className="relative z-10 border-b border-border">
+        <div className="mx-auto flex max-w-6xl flex-col items-center gap-6 px-6 py-12 sm:flex-row sm:justify-between">
+          <div>
+            <h3 className="font-serif text-xl font-bold text-foreground mb-1">Stay in the loop</h3>
+            <p className="text-sm text-muted-foreground">The best scrolls, delivered weekly. No spam, unsubscribe anytime.</p>
+          </div>
+          <form onSubmit={handleSubscribe} className="flex w-full max-w-sm gap-2 sm:w-auto">
+            <input
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="your@email.com"
+              className="flex-1 rounded-lg border border-border bg-background px-4 py-2.5 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+              required
+            />
+            <button
+              type="submit"
+              disabled={loading}
+              className="flex shrink-0 items-center gap-2 rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+            >
+              {loading ? "..." : (
+                <>
+                  Subscribe
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </>
+              )}
+            </button>
+          </form>
+        </div>
+      </div>
+
+      {/* Main footer grid */}
+      <div className="relative z-10 mx-auto max-w-6xl px-6 py-14">
+        <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-5">
+          {/* Brand — takes 2 cols on lg */}
+          <div className="lg:col-span-2">
+            <Link to="/" className="flex items-center gap-2.5 mb-4">
               <Scroll className="h-5 w-5 text-primary" />
               <span className="font-serif text-lg font-bold text-foreground">The Scroll</span>
             </Link>
-            <p className="text-sm leading-relaxed text-muted-foreground">
-              A sovereign publishing platform where writers own their words, their audience, and their future.
+            <p className="max-w-xs text-sm leading-relaxed text-muted-foreground mb-6">
+              A sovereign publishing platform where writers own their words, their audience, and their future. No algorithms. No gatekeepers.
             </p>
-            <div className="mt-5 flex items-center gap-3">
-              <a href="#" className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/30">
-                <Twitter className="h-4 w-4" />
-              </a>
-              <a href="#" className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/30">
-                <Github className="h-4 w-4" />
-              </a>
-              <a href="#" className="rounded-full border border-border p-2 text-muted-foreground transition-colors hover:text-foreground hover:border-foreground/30">
-                <Mail className="h-4 w-4" />
-              </a>
+            <div className="flex items-center gap-3">
+              {[
+                { icon: Twitter, href: "#", label: "Twitter" },
+                { icon: Github, href: "#", label: "GitHub" },
+                { icon: Mail, href: "mailto:hello@thescroll.com", label: "Email" },
+              ].map((social) => (
+                <a
+                  key={social.label}
+                  href={social.href}
+                  aria-label={social.label}
+                  className="group flex h-9 w-9 items-center justify-center rounded-lg border border-border bg-background text-muted-foreground transition-all hover:border-primary/40 hover:text-primary hover:bg-primary/5"
+                >
+                  <social.icon className="h-4 w-4" />
+                </a>
+              ))}
             </div>
           </div>
 
           {/* Product */}
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Product</h4>
-            <ul className="space-y-3">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-foreground">Product</h4>
+            <ul className="space-y-2.5">
               {[
                 { label: "Start Writing", href: "/auth" },
                 { label: "Discover", href: "/#chronicles" },
-                { label: "Pricing", href: "#" },
+                { label: "Pricing", href: "/pricing" },
                 { label: "Features", href: "/#features" },
+                { label: "Blog", href: "/blog" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link to={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
@@ -72,14 +119,13 @@ export const Footer = () => {
 
           {/* Resources */}
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Resources</h4>
-            <ul className="space-y-3">
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-foreground">Resources</h4>
+            <ul className="space-y-2.5">
               {[
-                { label: "Help Center", href: "#" },
-                { label: "Community", href: "#" },
-                { label: "Blog", href: "#" },
-                { label: "Privacy Policy", href: "#" },
-                { label: "Terms of Service", href: "#" },
+                { label: "Help Center", href: "/help" },
+                { label: "Community", href: "/community" },
+                { label: "Writer Guide", href: "/help" },
+                { label: "API Docs", href: "/help" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link to={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
@@ -90,32 +136,35 @@ export const Footer = () => {
             </ul>
           </div>
 
-          {/* Newsletter */}
+          {/* Legal */}
           <div>
-            <h4 className="mb-4 text-sm font-semibold uppercase tracking-wider text-foreground">Stay Updated</h4>
-            <p className="mb-4 text-sm text-muted-foreground">Get the best stories delivered to your inbox.</p>
-            <form onSubmit={handleSubscribe} className="flex gap-2">
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder="your@email.com"
-                className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-1 focus:ring-primary"
-                required
-              />
-              <button
-                type="submit"
-                disabled={loading}
-                className="shrink-0 rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
-              >
-                {loading ? "..." : "Join"}
-              </button>
-            </form>
+            <h4 className="mb-4 text-xs font-bold uppercase tracking-widest text-foreground">Legal</h4>
+            <ul className="space-y-2.5">
+              {[
+                { label: "Privacy Policy", href: "/privacy" },
+                { label: "Terms of Service", href: "/terms" },
+                { label: "Cookie Policy", href: "/privacy" },
+              ].map((l) => (
+                <li key={l.label}>
+                  <Link to={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
+                    {l.label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+      </div>
 
-        <div className="mt-12 border-t border-border pt-8 text-center text-xs text-muted-foreground">
-          © {new Date().getFullYear()} The Scroll. All rights reserved.
+      {/* Bottom bar */}
+      <div className="relative z-10 border-t border-border">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row">
+          <p className="text-xs text-muted-foreground">
+            © {new Date().getFullYear()} The Scroll. All rights reserved.
+          </p>
+          <p className="flex items-center gap-1 text-xs text-muted-foreground">
+            Made with <Heart className="h-3 w-3 text-primary" /> for independent writers
+          </p>
         </div>
       </div>
     </footer>
