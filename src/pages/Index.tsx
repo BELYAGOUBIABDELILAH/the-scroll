@@ -237,6 +237,7 @@ const Index = () => {
                       is_sealed={scroll.is_sealed}
                       published_at={scroll.published_at}
                       author_name={scroll.author_name}
+                      tag={(scroll as any).tag}
                       featured={false}
                     />
                   </motion.div>

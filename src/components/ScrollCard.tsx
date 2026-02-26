@@ -8,6 +8,7 @@ interface ScrollCardProps {
   is_sealed: boolean;
   published_at: string | null;
   author_name: string;
+  tag?: string;
   featured?: boolean;
 }
 
@@ -18,6 +19,7 @@ export const ScrollCard = ({
   is_sealed,
   published_at,
   author_name,
+  tag,
 }: ScrollCardProps) => {
   return (
     <Link
@@ -34,6 +36,14 @@ export const ScrollCard = ({
             <span style={{ color: "#27272A" }}>·</span>
             <span className="text-xs" style={{ color: "#3F3F46" }}>
               {format(new Date(published_at), "d MMM yyyy")}
+            </span>
+          </>
+        )}
+        {tag && tag !== "general" && (
+          <>
+            <span style={{ color: "#27272A" }}>·</span>
+            <span className="text-xs font-medium capitalize" style={{ color: "#52525B" }}>
+              {tag}
             </span>
           </>
         )}
