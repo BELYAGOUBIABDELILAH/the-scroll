@@ -1,57 +1,50 @@
 
 
-## Alliances Widget + Pledge Alliance Modal
+## Chronicles Navigation & Filtered Grid
 
-### Database
+### Current State
+The `scrolls` table has no `tag` or `category` column. The feed on `Index.tsx` renders all published scrolls in a flat list with no filtering. The `ScrollEditor.tsx` has no tag selection UI either.
 
-**New table: `alliances`**
-- `id` (uuid, PK, default `gen_random_uuid()`)
-- `scribe_id` (uuid, NOT NULL) — the author who curates this alliance
-- `allied_user_id` (uuid, NOT NULL) — the allied author's user_id
-- `description` (text, NOT NULL, default `''`) — 3-word tagline (e.g. "Strategy & Lore")
-- `display_order` (integer, NOT NULL, default `0`)
-- `created_at` (timestamptz, default `now()`)
+### Database Migration
 
-**RLS policies:**
-- SELECT: public (`true`)
-- INSERT/UPDATE/DELETE: scribe only (`auth.uid() = scribe_id`)
+Add a `tag` column to the `scrolls` table:
 
-**Unique constraint:** `(scribe_id, allied_user_id)`
+```sql
+ALTER TABLE public.scrolls ADD COLUMN tag text NOT NULL DEFAULT 'general';
+```
 
-### Component 1: `src/components/AlliancesWidget.tsx`
+No new RLS policies needed — existing policies on `scrolls` already cover this column.
 
-Props: `scribeId: string`
+### New Component: `src/components/ChroniclesFilter.tsx`
 
-- Queries `alliances` table joined with `profiles` (for name, avatar) filtered by `scribe_id`, ordered by `display_order`
-- Renders a bento box: obsidian `#080808` bg, `1px #1A1A1A` border, rounded
-- Heading: serif "Alliances" in `#A1A1AA`
-- Each row: grayscale circular avatar (CSS `filter: grayscale(100%)`), name in white sans-serif, 3-word description in `#71717A`
-- Entire row is a subtle hover link (`#121212` bg on hover) — links to `/` (since there's no per-author page yet, or could be a no-op anchor)
+**Props:** `tags: string[]`, `activeTag: string`, `onTagChange: (tag: string) => void`
 
-**Placement:** Rendered on `Index.tsx` below the scrolls feed, before the footer, inside the 700px container.
+- Horizontal scrollable row (`overflow-x-auto`, hidden scrollbar via `scrollbar-hide` utility)
+- Pills rendered as buttons:
+  - **Default:** no background, `#71717A` text, `text-sm` sans-serif, `px-3 py-1.5` rounded-full
+  - **Active:** `#18181B` background, `#FFFFFF` text, `1px solid #27272A` border
+- First pill is always "All" (clears filter)
+- Transition on pill state: `transition-all duration-150`
 
-### Component 2: `src/components/PledgeAllianceModal.tsx`
+### Changes to `Index.tsx`
 
-Props: `scribeId: string`, `open: boolean`, `onClose: () => void`
+1. Add `activeTag` state (default `"All"`)
+2. Extract unique tags from fetched scrolls to build the pill list
+3. Place `ChroniclesFilter` between the "Publications" heading and the article list
+4. Filter `scrolls` client-side by `activeTag` (if not "All")
+5. Wrap the grid in `AnimatePresence` with a keyed `motion.div` using `opacity` transition (200ms ease-in-out) so cards cross-fade when the tag changes
+6. Replace section heading "Publications" with "Chronicles"
 
-- Uses Radix Dialog with glassmorphic overlay (`backdrop-filter: blur(12px)`, semi-transparent dark bg)
-- Bento card center: `#0D0D0D` bg, `1px #1A1A1A` border
-- Serif header: "Your raven has been dispatched. Expand your network."
-- Lists the 3 allied authors with checkboxes (default checked), avatar + name
-- Red `#8B0000` button: "Add to Subscriptions" — bulk-inserts into `subscriptions` table for each checked ally
-- Gray text link: "No thanks, enter the archives." — closes modal
+### Changes to `ScrollEditor.tsx`
 
-**Trigger logic:** In both `Index.tsx` (handleSubscribe) and `ScrollView.tsx` (handleSubscribe), after a successful email subscription, open the modal by setting state. The modal only shows if alliances exist for the scribe.
-
-### Integration Points
-
-1. **`Index.tsx`**: Add `AlliancesWidget` before footer. After successful subscribe, show `PledgeAllianceModal`.
-2. **`ScrollView.tsx`**: After successful subscribe in the gate form, show `PledgeAllianceModal`.
+1. Add a tag input/select field below the title (simple text input or small preset pill selector)
+2. Include `tag` in both insert and update calls
+3. Load existing tag when editing
 
 ### Implementation Steps
 
-1. Create database migration for `alliances` table with RLS
-2. Build `AlliancesWidget.tsx` — bento box with grayscale avatars and hover rows
-3. Build `PledgeAllianceModal.tsx` — glassmorphic dialog with checkboxes and bulk subscribe
-4. Integrate widget into `Index.tsx` and trigger modal on subscription in both `Index.tsx` and `ScrollView.tsx`
+1. Run database migration to add `tag` column to `scrolls`
+2. Build `ChroniclesFilter` component with pill menu styling
+3. Update `Index.tsx` — add filter state, render `ChroniclesFilter`, apply client-side filtering with cross-fade animation
+4. Update `ScrollEditor.tsx` — add tag field to editor, persist on save/dispatch
 
