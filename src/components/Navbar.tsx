@@ -3,12 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scroll, LogOut } from "lucide-react";
+import { Scroll, LogOut, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 
 const navLinks = [
   { label: "Discover", href: "/#chronicles" },
-  { label: "The Council", href: "/#council" },
   { label: "Features", href: "/#features" },
 ];
 
@@ -76,9 +75,13 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           {user ? (
             <>
-              {role === "scribe" && (
+              {role === "scribe" ? (
                 <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
                   <Link to="/dashboard">Dashboard</Link>
+                </Button>
+              ) : (
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+                  <Link to="/feed">My Feed</Link>
                 </Button>
               )}
               <Link to="/settings" className="hidden text-sm text-foreground hover:text-primary transition-colors sm:inline">
