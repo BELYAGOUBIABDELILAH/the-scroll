@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
-import { Lock, Users, MessageSquare, Flame, BookOpen, Feather } from "lucide-react";
+import { Lock, Users, MessageSquare, BookOpen, Feather } from "lucide-react";
+import { FeaturedWriters } from "@/components/FeaturedWriters";
 import { HowItWorks } from "@/components/HowItWorks";
 import { Testimonials } from "@/components/Testimonials";
 import { Footer } from "@/components/Footer";
@@ -226,6 +227,11 @@ const Index = () => {
           ))}
         </motion.div>
       </section>
+
+      {/* ═══════════════════════════════════════════
+          FEATURED WRITERS CAROUSEL
+      ═══════════════════════════════════════════ */}
+      <FeaturedWriters />
 
       {/* ═══════════════════════════════════════════
           FEED — 2-column Substack layout
