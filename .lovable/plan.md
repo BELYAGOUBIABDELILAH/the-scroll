@@ -1,36 +1,45 @@
 
 
-## Pro Reading View Redesign
+## "The Council" — Subscriber-Only Comment Section
 
-### Changes
+### Database
 
-**1. `src/pages/ScrollView.tsx` — Full rewrite of the reading view**
+**New table: `comments`**
+- `id` (uuid, PK, default `gen_random_uuid()`)
+- `scroll_id` (uuid, NOT NULL, FK → scrolls.id ON DELETE CASCADE)
+- `user_id` (uuid, NOT NULL)
+- `content` (text, NOT NULL)
+- `created_at` (timestamptz, default `now()`)
 
-- Set background to `#080808` explicitly
-- Max-width container: `700px` centered
-- **Header**: Massive Playfair Display serif title, metadata row with circular author avatar, name, date, and computed reading time (~200 words/min), all in `#A1A1AA`
-- **Body**: Inter sans-serif, `leading-[1.7]`, max-w `700px`
-- **Gate**: Show first TWO paragraphs (not one), CSS gradient fade to `#080808`, then a bento-style card with 1px border:
-  - Serif header: "S'abonner pour lire la suite"
-  - Email input + `#8B0000` "S'abonner" button (free subscription via `email_subscribers` table insert)
-  - No lock icon, no mention of price
-- **Footer**: Minimal — share link (copy URL to clipboard) + "Retour" link back to landing page
+**RLS policies:**
+- SELECT: open to everyone (`true`) — comments are public
+- INSERT: authenticated users only (`auth.uid() = user_id`) — must be logged in
+- DELETE: own comments only (`auth.uid() = user_id`)
 
-**2. `src/components/MarkdownRenderer.tsx` — Update typography**
+**Index:** on `(scroll_id, created_at)` for fast feed queries.
 
-- Paragraphs: `leading-[1.7]` instead of `leading-relaxed`
-- Text color: `text-[#E5E5E5]` for body text
-- Headings: keep serif, increase spacing
+### New Component: `src/components/CouncilComments.tsx`
 
-**3. Reading time utility**
+A self-contained component that receives `scrollId` and `authorId` as props, placed below the footer in `ScrollView.tsx`.
 
-- Add a `getReadingTime(content: string)` helper inline in ScrollView (word count / 200, round up, return `"X min read"`)
+**Structure:**
+- Serif heading: "The Council"
+- **Input gate** (visible only if `user` is logged in): dark `#121212` textarea with `1px #27272A` border, placeholder "Share your thoughts with the realm...", Targaryen Red `#8B0000` submit button right-aligned
+- If not logged in: subtle message "Sign in to join the discussion" with link to `/auth`
+- **Comment feed**: flat vertical stack, each card is a bento-style card (`#0D0D0D` bg, `1px #1A1A1A` border)
+  - Top row: circular avatar, bold name, relative timestamp (e.g. "2h ago")
+  - Body: comment text in `#D4D4D8`
+- **Author highlight**: if `comment.user_id === authorId`, apply a subtle red border (`1px solid #8B0000` with `box-shadow: 0 0 8px rgba(139,0,0,0.3)`) and an "Author" badge in `#8B0000` next to the name
+- Uses `useQuery` to fetch comments joined with profiles, `useMutation` + `useQueryClient` for optimistic posting
+
+### Integration into ScrollView
+
+- Import and render `<CouncilComments scrollId={scroll.id} authorId={scroll.author_id} />` after the existing `<footer>` block, still inside the 700px container
+- Only render when `canReadFull` is true (subscribers/authors only see comments)
 
 ### Implementation Steps
 
-1. Add reading time calculation to ScrollView
-2. Redesign ScrollView header with avatar, metadata row, reading time
-3. Update gate to show 2 paragraphs + email capture form with French copy + `#8B0000` accent
-4. Add minimal footer with share button and back link
-5. Refine MarkdownRenderer typography for premium line height
+1. Create database migration for `comments` table with RLS
+2. Build `CouncilComments.tsx` component with input gate, feed, and author highlighting
+3. Integrate into `ScrollView.tsx` below the footer
 
