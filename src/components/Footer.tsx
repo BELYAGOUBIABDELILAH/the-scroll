@@ -154,13 +154,14 @@ export const Footer = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="relative z-10 border-t border-border">
-        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-3 px-6 py-6 sm:flex-row">
-          <p className="text-xs text-muted-foreground">
-            © {new Date().getFullYear()} The Scroll. All rights reserved.
+      <div className="relative z-10 border-t border-border bg-background/50 backdrop-blur-sm">
+        <div className="mx-auto flex max-w-6xl flex-col items-center justify-between gap-4 px-6 py-8 sm:flex-row">
+          <p className="text-xs tracking-wide text-muted-foreground/70">
+            © {new Date().getFullYear()} <span className="font-serif font-semibold text-foreground/80">The Scroll</span>. All rights reserved.
           </p>
-          <p className="flex items-center gap-1 text-xs text-muted-foreground">
-            Made with <Heart className="h-3 w-3 text-primary" /> for independent writers
+          <div className="h-px w-12 bg-primary/20 sm:hidden" />
+          <p className="flex items-center gap-1.5 text-xs tracking-wide text-muted-foreground/70">
+            Crafted with <Heart className="h-3 w-3 animate-pulse text-primary" /> for independent writers
           </p>
         </div>
       </div>
