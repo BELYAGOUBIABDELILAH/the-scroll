@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        serif: ['"Playfair Display"', 'serif'],
+        serif: ['"Cinzel"', 'serif'],
+        body: ['"Cormorant Garamond"', 'serif'],
         sans: ['"Inter"', 'sans-serif'],
       },
       colors: {
@@ -52,6 +53,9 @@ export default {
           foreground: "hsl(var(--card-foreground))",
         },
         "scroll-gold": "hsl(var(--scroll-gold))",
+        "dragon-fire": "hsl(var(--dragon-fire))",
+        "valyrian-steel": "hsl(var(--valyrian-steel))",
+        ember: "hsl(var(--ember))",
         sidebar: {
           DEFAULT: "hsl(var(--sidebar-background))",
           foreground: "hsl(var(--sidebar-foreground))",
@@ -78,14 +82,19 @@ export default {
           to: { height: "0" },
         },
         "ember-glow": {
-          "0%, 100%": { opacity: "0.4" },
-          "50%": { opacity: "0.8" },
+          "0%, 100%": { opacity: "0.3" },
+          "50%": { opacity: "0.7" },
+        },
+        "fire-flicker": {
+          "0%, 100%": { opacity: "0.6", transform: "scale(1)" },
+          "50%": { opacity: "1", transform: "scale(1.05)" },
         },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
-        "ember-glow": "ember-glow 3s ease-in-out infinite",
+        "ember-glow": "ember-glow 4s ease-in-out infinite",
+        "fire-flicker": "fire-flicker 3s ease-in-out infinite",
       },
     },
   },

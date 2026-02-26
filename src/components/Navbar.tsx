@@ -50,8 +50,8 @@ export const Navbar = () => {
   return (
     <nav className="fixed top-0 z-50 w-full px-4 pt-4">
       <div
-        className="mx-auto flex h-14 max-w-5xl items-center justify-between rounded-2xl border border-border/40 px-5 shadow-lg shadow-black/10 backdrop-blur-2xl"
-        style={{ backgroundColor: "hsla(0, 0%, 5%, 0.65)" }}>
+        className="mx-auto flex h-14 max-w-5xl items-center justify-between rounded-2xl border border-border/30 px-5 shadow-throne backdrop-blur-2xl"
+        style={{ backgroundColor: "hsla(20, 10%, 4%, 0.75)" }}>
 
         {/* Left: Logo */}
         <Link to="/" className="flex items-center gap-2.5">
