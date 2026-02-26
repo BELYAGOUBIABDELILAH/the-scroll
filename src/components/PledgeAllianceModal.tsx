@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useRef, useCallback } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -24,6 +24,61 @@ export const PledgeAllianceModal = ({
   const [checkedIds, setCheckedIds] = useState<Set<string>>(new Set());
   const [initialized, setInitialized] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const [showEmbers, setShowEmbers] = useState(false);
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  const fireEmbers = useCallback(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const rect = canvas.parentElement!.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    setShowEmbers(true);
+
+    const particles: { x: number; y: number; vx: number; vy: number; r: number; a: number; decay: number; hue: number }[] = [];
+    for (let i = 0; i < 40; i++) {
+      particles.push({
+        x: canvas.width / 2 + (Math.random() - 0.5) * 100,
+        y: canvas.height * 0.6,
+        vx: (Math.random() - 0.5) * 4,
+        vy: -Math.random() * 5 - 2,
+        r: Math.random() * 3 + 1.5,
+        a: 1,
+        decay: 0.012 + Math.random() * 0.01,
+        hue: Math.random() * 30, // 0-30 = reds/oranges
+      });
+    }
+
+    let frame: number;
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      let alive = false;
+      for (const p of particles) {
+        if (p.a <= 0) continue;
+        alive = true;
+        p.x += p.vx;
+        p.vy += 0.04; // slight gravity
+        p.y += p.vy;
+        p.a -= p.decay;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `hsla(${p.hue}, 90%, 50%, ${Math.max(0, p.a)})`;
+        ctx.shadowBlur = 8;
+        ctx.shadowColor = `hsla(${p.hue}, 90%, 50%, ${Math.max(0, p.a * 0.5)})`;
+        ctx.fill();
+      }
+      if (alive) {
+        frame = requestAnimationFrame(animate);
+      } else {
+        setShowEmbers(false);
+      }
+    };
+    frame = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   const { data: alliances = [] } = useQuery({
     queryKey: ["alliances-modal", scribeId],
@@ -82,8 +137,9 @@ export const PledgeAllianceModal = ({
     }
     setSubmitting(true);
     try {
+      fireEmbers();
       toast.success(`${checkedIds.size} alliance(s) noted. Welcome to the network.`);
-      handleClose();
+      setTimeout(() => handleClose(), 1200);
     } catch {
       toast.error("Something went wrong.");
     } finally {
@@ -104,12 +160,17 @@ export const PledgeAllianceModal = ({
         }}
       />
       <DialogContent
-        className="z-50 mx-auto max-w-md rounded-lg border p-0 shadow-2xl overflow-hidden"
+        className="relative z-50 mx-auto max-w-md rounded-lg border p-0 shadow-2xl overflow-hidden"
         style={{
           backgroundColor: "#121212",
           borderColor: "#27272A",
         }}
       >
+        {/* Ember particle canvas */}
+        <canvas
+          ref={canvasRef}
+          className={`pointer-events-none absolute inset-0 z-10 ${showEmbers ? "block" : "hidden"}`}
+        />
         <div className="px-8 pt-10 pb-2">
           <h2 className="mb-2 font-serif text-2xl font-bold leading-snug text-foreground">
             Your oath is recorded. Expand your network.
