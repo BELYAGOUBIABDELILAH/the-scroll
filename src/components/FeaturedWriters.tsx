@@ -1,15 +1,80 @@
 import { Link } from "react-router-dom";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 import { motion } from "framer-motion";
-import { Flame, ChevronLeft, ChevronRight } from "lucide-react";
+import { Flame, ChevronLeft, ChevronRight, UserPlus, Check } from "lucide-react";
 import { useRef, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { useToast } from "@/hooks/use-toast";
+import { useNavigate } from "react-router-dom";
 
 export const FeaturedWriters = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [canScrollLeft, setCanScrollLeft] = useState(false);
   const [canScrollRight, setCanScrollRight] = useState(true);
+  const { user } = useAuth();
+  const { toast } = useToast();
+  const navigate = useNavigate();
+  const queryClient = useQueryClient();
+
+  // Check existing subscriptions
+  const { data: mySubscriptions } = useQuery({
+    queryKey: ["my-subscriptions-set", user?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("subscriptions")
+        .select("scribe_id")
+        .eq("subscriber_id", user!.id);
+      return new Set((data ?? []).map((s) => s.scribe_id));
+    },
+    enabled: !!user,
+  });
+
+  const subscribeMutation = useMutation({
+    mutationFn: async (scribeId: string) => {
+      const { error } = await supabase
+        .from("subscriptions")
+        .insert({ subscriber_id: user!.id, scribe_id: scribeId });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-subscriptions-set"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-writers"] });
+      toast({ title: "Subscribed!" });
+    },
+    onError: () => {
+      toast({ title: "Already subscribed", variant: "destructive" });
+    },
+  });
+
+  const unsubscribeMutation = useMutation({
+    mutationFn: async (scribeId: string) => {
+      const { error } = await supabase
+        .from("subscriptions")
+        .delete()
+        .eq("subscriber_id", user!.id)
+        .eq("scribe_id", scribeId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["my-subscriptions-set"] });
+      queryClient.invalidateQueries({ queryKey: ["featured-writers"] });
+      toast({ title: "Unsubscribed" });
+    },
+  });
+
+  const handleSubscribe = (scribeId: string) => {
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+    if (mySubscriptions?.has(scribeId)) {
+      unsubscribeMutation.mutate(scribeId);
+    } else {
+      subscribeMutation.mutate(scribeId);
+    }
+  };
 
   const { data: writers } = useQuery({
     queryKey: ["featured-writers"],
@@ -191,6 +256,34 @@ export const FeaturedWriters = () => {
                   </p>
                 )}
               </Link>
+            )}
+
+            {/* Subscribe button */}
+            {writer.user_id !== user?.id && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  handleSubscribe(writer.user_id);
+                }}
+                disabled={subscribeMutation.isPending || unsubscribeMutation.isPending}
+                className={`mt-4 flex w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold transition-all ${
+                  mySubscriptions?.has(writer.user_id)
+                    ? "border border-border bg-secondary text-secondary-foreground hover:bg-destructive/10 hover:text-destructive hover:border-destructive/30"
+                    : "bg-primary text-primary-foreground hover:opacity-90"
+                }`}
+              >
+                {mySubscriptions?.has(writer.user_id) ? (
+                  <>
+                    <Check className="h-3.5 w-3.5" />
+                    Subscribed
+                  </>
+                ) : (
+                  <>
+                    <UserPlus className="h-3.5 w-3.5" />
+                    Subscribe
+                  </>
+                )}
+              </button>
             )}
           </motion.div>
         ))}
