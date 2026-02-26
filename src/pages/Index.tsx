@@ -23,48 +23,6 @@ const fadeUp = {
   }),
 };
 
-  /* ── Trending scrolls for the Great Hall (latest 6) ── */
-  const { data: trendingScrolls = [] } = useQuery({
-    queryKey: ["trending-scrolls"],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from("scrolls")
-        .select("id, title, tag, author_id")
-        .eq("status", "published")
-        .order("published_at", { ascending: false })
-        .limit(6);
-      if (!data?.length) return [];
-
-      const authorIds = [...new Set(data.map((s) => s.author_id))];
-      const { data: profiles } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, avatar_url")
-        .in("user_id", authorIds);
-      const profileMap = new Map(
-        (profiles ?? []).map((p) => [p.user_id, p])
-      );
-
-      // Get view counts from analytics
-      const scrollIds = data.map((s) => s.id);
-      const { data: events } = await supabase
-        .from("analytics_events")
-        .select("scroll_id")
-        .in("scroll_id", scrollIds)
-        .eq("event_type", "scroll_view");
-      const viewMap: Record<string, number> = {};
-      (events ?? []).forEach((e) => {
-        if (e.scroll_id) viewMap[e.scroll_id] = (viewMap[e.scroll_id] ?? 0) + 1;
-      });
-
-      return data.map((s) => ({
-        ...s,
-        author_name: profileMap.get(s.author_id)?.display_name ?? "Anonyme",
-        author_avatar: profileMap.get(s.author_id)?.avatar_url ?? null,
-        readers: viewMap[s.id] ?? 0,
-      }));
-    },
-  });
-
 
 const featurePanels = [
   {
@@ -135,6 +93,46 @@ const Index = () => {
       return data.map((s) => ({
         ...s,
         author_name: profileMap.get(s.author_id) ?? "Anonyme",
+      }));
+    },
+  });
+
+  const { data: trendingScrolls = [] } = useQuery({
+    queryKey: ["trending-scrolls"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("scrolls")
+        .select("id, title, tag, author_id")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(6);
+      if (!data?.length) return [];
+
+      const authorIds = [...new Set(data.map((s) => s.author_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", authorIds);
+      const profileMap = new Map(
+        (profiles ?? []).map((p) => [p.user_id, p])
+      );
+
+      const scrollIds = data.map((s) => s.id);
+      const { data: events } = await supabase
+        .from("analytics_events")
+        .select("scroll_id")
+        .in("scroll_id", scrollIds)
+        .eq("event_type", "scroll_view");
+      const viewMap: Record<string, number> = {};
+      (events ?? []).forEach((e) => {
+        if (e.scroll_id) viewMap[e.scroll_id] = (viewMap[e.scroll_id] ?? 0) + 1;
+      });
+
+      return data.map((s) => ({
+        ...s,
+        author_name: profileMap.get(s.author_id)?.display_name ?? "Anonyme",
+        author_avatar: profileMap.get(s.author_id)?.avatar_url ?? null,
+        readers: viewMap[s.id] ?? 0,
       }));
     },
   });
