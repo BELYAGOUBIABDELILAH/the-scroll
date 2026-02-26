@@ -1,5 +1,6 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Scroll, Lock, Users, MessageSquare, Flame } from "lucide-react";
+import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { ScrollCard } from "@/components/ScrollCard";
 import { AlliancesWidget } from "@/components/AlliancesWidget";
@@ -11,7 +12,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { trackPageView } from "@/lib/analytics";
 import { toast } from "sonner";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -22,15 +23,48 @@ const fadeUp = {
   }),
 };
 
-/* ── Mock trending data for the Great Hall ── */
-const trendingScrolls = [
-  { id: "t1", title: "The Art of Strategic Patience", tag: "Tactics", author: "Daemon", readers: "1.2k" },
-  { id: "t2", title: "When Fire Met Ice: A Valyrian Accord", tag: "Lore", author: "Rhaenyra", readers: "980" },
-  { id: "t3", title: "Decree VII: On Bannerman Loyalty", tag: "Decrees", author: "Viserys", readers: "2.4k" },
-  { id: "t4", title: "The Citadel's Hidden Archives", tag: "Lore", author: "Maester Cole", readers: "760" },
-  { id: "t5", title: "Forging Alliances in the New Age", tag: "Tactics", author: "Otto", readers: "1.8k" },
-  { id: "t6", title: "The Silent Council Speaks", tag: "Chronicles", author: "Alicent", readers: "3.1k" },
-];
+  /* ── Trending scrolls for the Great Hall (latest 6) ── */
+  const { data: trendingScrolls = [] } = useQuery({
+    queryKey: ["trending-scrolls"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("scrolls")
+        .select("id, title, tag, author_id")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(6);
+      if (!data?.length) return [];
+
+      const authorIds = [...new Set(data.map((s) => s.author_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", authorIds);
+      const profileMap = new Map(
+        (profiles ?? []).map((p) => [p.user_id, p])
+      );
+
+      // Get view counts from analytics
+      const scrollIds = data.map((s) => s.id);
+      const { data: events } = await supabase
+        .from("analytics_events")
+        .select("scroll_id")
+        .in("scroll_id", scrollIds)
+        .eq("event_type", "scroll_view");
+      const viewMap: Record<string, number> = {};
+      (events ?? []).forEach((e) => {
+        if (e.scroll_id) viewMap[e.scroll_id] = (viewMap[e.scroll_id] ?? 0) + 1;
+      });
+
+      return data.map((s) => ({
+        ...s,
+        author_name: profileMap.get(s.author_id)?.display_name ?? "Anonyme",
+        author_avatar: profileMap.get(s.author_id)?.avatar_url ?? null,
+        readers: viewMap[s.id] ?? 0,
+      }));
+    },
+  });
+
 
 const featurePanels = [
   {
@@ -222,14 +256,21 @@ const Index = () => {
               variants={fadeUp}
               className="group rounded-lg border border-border bg-card p-5 transition-all duration-200 hover:border-foreground/20"
             >
-              <div className="mb-4 flex items-center gap-3">
-                <Avatar className="h-8 w-8">
+              <Link
+                to={`/scribe/${item.author_id}`}
+                className="mb-4 flex items-center gap-3 hover:opacity-70 transition-opacity"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Avatar className="h-8 w-8" style={{ filter: "grayscale(100%)" }}>
+                  {item.author_avatar ? (
+                    <AvatarImage src={item.author_avatar} alt={item.author_name} />
+                  ) : null}
                   <AvatarFallback className="bg-secondary text-xs text-muted-foreground">
-                    {item.author[0]}
+                    {item.author_name[0]}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium text-muted-foreground">{item.author}</span>
-              </div>
+                <span className="text-sm font-medium text-muted-foreground">{item.author_name}</span>
+              </Link>
 
               <h3 className="mb-3 font-serif text-lg font-bold leading-snug text-foreground group-hover:text-foreground/90 transition-colors">
                 {item.title}
