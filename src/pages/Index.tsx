@@ -142,70 +142,78 @@ const Index = () => {
       {/* ═══════════════════════════════════════════
           HERO — Clean Substack-style
       ═══════════════════════════════════════════ */}
-      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pt-20">
+      <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-20">
+        {/* Dragon fire ambient glow */}
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div
-            className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[200px]"
-            style={{ backgroundColor: "hsla(0, 72%, 45%, 0.04)" }}
+            className="absolute left-1/2 top-1/4 h-[800px] w-[800px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[250px] animate-ember-glow"
+            style={{ backgroundColor: "hsla(0, 80%, 30%, 0.06)" }}
           />
+          <div
+            className="absolute right-0 bottom-0 h-[400px] w-[400px] rounded-full blur-[200px] animate-ember-glow"
+            style={{ backgroundColor: "hsla(30, 80%, 30%, 0.04)", animationDelay: "2s" }}
+          />
+          {/* Subtle top vignette */}
+          <div className="absolute inset-x-0 top-0 h-40 bg-gradient-to-b from-background to-transparent" />
         </div>
 
         <motion.div
-          className="relative z-10 flex max-w-2xl flex-col items-center text-center"
+          className="relative z-10 flex max-w-3xl flex-col items-center text-center"
           initial="hidden"
           animate="visible"
           variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
         >
-          <motion.div variants={fadeUp} custom={0} className="mb-6 flex items-center gap-2 rounded-full border border-border bg-card px-4 py-1.5">
+          {/* Crown badge */}
+          <motion.div variants={fadeUp} custom={0} className="mb-8 flex items-center gap-2.5 rounded-full border border-border/60 bg-card/80 px-5 py-2 backdrop-blur-sm border-ember-glow">
             <Feather className="h-3.5 w-3.5 text-primary" />
-            <span className="text-xs font-medium text-muted-foreground">The sovereign publishing platform</span>
+            <span className="font-sans text-[11px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">Fire & Blood — Write Your Legacy</span>
           </motion.div>
 
           <motion.h1
             variants={fadeUp}
             custom={1}
-            className="mb-6 font-serif text-5xl font-bold leading-[1.08] tracking-tight text-foreground md:text-7xl"
+            className="mb-6 font-serif text-5xl font-bold leading-[1.05] tracking-wide text-foreground md:text-7xl lg:text-8xl"
           >
-            A place for
+            <span className="text-gradient-fire">Rule</span> Your
             <br />
-            independent writing
+            <span className="text-gradient-steel">Realm</span> of Words
           </motion.h1>
 
           <motion.p
             variants={fadeUp}
             custom={2}
-            className="mb-10 max-w-md text-lg leading-relaxed text-muted-foreground"
+            className="font-body mb-10 max-w-lg text-lg leading-relaxed text-muted-foreground md:text-xl"
           >
-            Start a publication. Build your audience. Own your creative future — no algorithms, no gatekeepers.
+            Forge your chronicles upon the Iron Throne of publishing. No algorithms. No gatekeepers. Only fire and ink.
           </motion.p>
 
-          <motion.div variants={fadeUp} custom={3} className="flex items-center gap-4">
+          <motion.div variants={fadeUp} custom={3} className="flex items-center gap-5">
             <Link
               to="/auth"
-              className="inline-flex h-12 items-center rounded-lg bg-primary px-8 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+              className="group relative inline-flex h-13 items-center rounded-lg bg-gradient-fire px-9 text-sm font-semibold uppercase tracking-[0.15em] text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/20"
             >
-              Get Started
+              Claim Your Throne
             </Link>
             <button
               onClick={() => document.getElementById("chronicles")?.scrollIntoView({ behavior: "smooth" })}
-              className="text-sm font-medium text-muted-foreground underline-offset-4 hover:text-foreground hover:underline transition-colors"
+              className="font-body text-base text-muted-foreground underline-offset-4 hover:text-foreground hover:underline transition-colors"
             >
-              Explore posts
+              Read the scrolls
             </button>
           </motion.div>
         </motion.div>
 
-        {/* Social proof bar */}
+        {/* Stats — styled like house banners */}
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          transition={{ delay: 0.8, duration: 0.6 }}
-          className="relative z-10 mt-16 flex items-center gap-8 md:gap-12"
+          transition={{ delay: 0.8, duration: 0.8 }}
+          className="relative z-10 mt-20 flex items-center gap-10 md:gap-16"
         >
-          {stats.map((stat) => (
+          {stats.map((stat, i) => (
             <div key={stat.label} className="text-center">
-              <p className="font-serif text-2xl font-bold text-foreground">{stat.value}</p>
-              <p className="text-xs text-muted-foreground">{stat.label}</p>
+              <p className="font-serif text-3xl font-bold text-gradient-fire">{stat.value}</p>
+              <p className="font-sans text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground/60">{stat.label}</p>
             </div>
           ))}
         </motion.div>
@@ -307,10 +315,10 @@ const Index = () => {
       {/* ═══════════════════════════════════════════
           WHY THE SCROLL — Manifesto-style
       ═══════════════════════════════════════════ */}
-      <section id="features" className="relative overflow-hidden border-y border-border py-28">
+      <section id="features" className="relative overflow-hidden border-y border-border/40 py-28">
         <div className="pointer-events-none absolute inset-0">
-          <div className="absolute right-0 top-0 h-[400px] w-[400px] rounded-full blur-[180px]" style={{ backgroundColor: "hsla(0, 72%, 45%, 0.03)" }} />
-          <div className="absolute left-0 bottom-0 h-[300px] w-[300px] rounded-full blur-[150px]" style={{ backgroundColor: "hsla(30, 60%, 50%, 0.03)" }} />
+          <div className="absolute right-0 top-0 h-[400px] w-[400px] rounded-full blur-[200px] animate-ember-glow" style={{ backgroundColor: "hsla(0, 80%, 30%, 0.04)" }} />
+          <div className="absolute left-0 bottom-0 h-[300px] w-[300px] rounded-full blur-[180px]" style={{ backgroundColor: "hsla(30, 70%, 30%, 0.04)" }} />
         </div>
 
         <div className="relative z-10 mx-auto max-w-5xl px-6">
@@ -321,9 +329,9 @@ const Index = () => {
             transition={{ duration: 0.6 }}
             className="mb-16 max-w-lg"
           >
-            <span className="mb-3 inline-block font-mono text-xs font-semibold tracking-widest text-primary/60 uppercase">The Manifesto</span>
+            <span className="mb-3 inline-block font-sans text-[11px] font-semibold tracking-[0.25em] text-primary/60 uppercase">The Dragon's Decree</span>
             <h2 className="font-serif text-4xl font-bold leading-tight text-foreground md:text-5xl">
-              Writing deserves<br />better than this.
+              Writing deserves<br /><span className="text-gradient-fire">dragon fire.</span>
             </h2>
           </motion.div>
 
@@ -390,11 +398,11 @@ const Index = () => {
       {/* ═══════════════════════════════════════════
           FINAL CTA
       ═══════════════════════════════════════════ */}
-      <section className="relative overflow-hidden border-t border-border py-32">
+      <section className="relative overflow-hidden border-t border-border/40 py-36">
         <div className="pointer-events-none absolute inset-0">
           <div
-            className="absolute left-1/2 top-1/2 h-[500px] w-[500px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[200px]"
-            style={{ backgroundColor: "hsla(0, 72%, 45%, 0.06)" }}
+            className="absolute left-1/2 top-1/2 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full blur-[250px] animate-ember-glow"
+            style={{ backgroundColor: "hsla(0, 80%, 30%, 0.08)" }}
           />
         </div>
         <motion.div
@@ -404,17 +412,19 @@ const Index = () => {
           transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
           className="relative z-10 mx-auto flex max-w-2xl flex-col items-center text-center px-6"
         >
-          <h2 className="mb-4 font-serif text-4xl font-bold leading-tight text-foreground md:text-5xl">
-            Your Realm Awaits.
+          <h2 className="mb-5 font-serif text-4xl font-bold leading-tight text-foreground md:text-6xl">
+            <span className="text-gradient-fire">Fire & Blood.</span>
+            <br />
+            Your Words, Your Crown.
           </h2>
-          <p className="mb-10 max-w-md text-base leading-relaxed text-muted-foreground">
-            Join the scribes who chose sovereignty over algorithms. Start publishing on your own terms — free, forever.
+          <p className="font-body mb-10 max-w-md text-lg leading-relaxed text-muted-foreground">
+            Join the scribes who chose sovereignty over algorithms. Forge your legacy — free, forever.
           </p>
           <Link
             to="/auth"
-            className="inline-flex h-12 items-center rounded-lg bg-primary px-8 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90"
+            className="inline-flex h-13 items-center rounded-lg bg-gradient-fire px-10 text-sm font-semibold uppercase tracking-[0.15em] text-primary-foreground transition-all hover:shadow-lg hover:shadow-primary/20"
           >
-            Start Your Scroll — It's Free
+            Claim Your Throne
           </Link>
         </motion.div>
       </section>

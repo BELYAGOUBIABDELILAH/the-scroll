@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700;800;900&family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400;1,500&family=Inter:wght@300;400;500;600&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -6,76 +6,79 @@
 
 @layer base {
   :root {
-    --background: 0 0% 6%;
-    --foreground: 0 0% 92%;
+    /* HOTD: Deep obsidian blacks with warm undertones */
+    --background: 20 10% 4%;
+    --foreground: 38 20% 88%;
 
-    --card: 0 0% 9%;
-    --card-foreground: 0 0% 92%;
+    /* Cards: Dark iron / forged steel */
+    --card: 20 8% 8%;
+    --card-foreground: 38 20% 88%;
 
-    --popover: 0 0% 9%;
-    --popover-foreground: 0 0% 92%;
+    --popover: 20 8% 8%;
+    --popover-foreground: 38 20% 88%;
 
-    --primary: 0 72% 45%;
-    --primary-foreground: 0 0% 98%;
+    /* Primary: Targaryen dragon fire — deep crimson */
+    --primary: 0 80% 40%;
+    --primary-foreground: 38 20% 95%;
 
-    --secondary: 0 0% 14%;
-    --secondary-foreground: 0 0% 80%;
+    /* Secondary: Aged bronze / dark leather */
+    --secondary: 25 12% 14%;
+    --secondary-foreground: 38 15% 70%;
 
-    --muted: 0 0% 14%;
-    --muted-foreground: 0 0% 50%;
+    --muted: 20 8% 13%;
+    --muted-foreground: 30 8% 45%;
 
-    --accent: 0 0% 14%;
-    --accent-foreground: 0 0% 92%;
+    /* Accent: Warm ember glow */
+    --accent: 15 15% 12%;
+    --accent-foreground: 38 20% 88%;
 
-    --destructive: 0 84% 60%;
+    --destructive: 0 84% 50%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 0 0% 16%;
-    --input: 0 0% 16%;
-    --ring: 0 72% 45%;
+    /* Borders: Subtle iron/charcoal edges */
+    --border: 20 8% 15%;
+    --input: 20 8% 15%;
+    --ring: 0 80% 40%;
 
     --radius: 0.375rem;
 
-    --sidebar-background: 0 0% 7%;
-    --sidebar-foreground: 0 0% 80%;
-    --sidebar-primary: 0 72% 45%;
-    --sidebar-primary-foreground: 0 0% 98%;
-    --sidebar-accent: 0 0% 12%;
-    --sidebar-accent-foreground: 0 0% 92%;
-    --sidebar-border: 0 0% 14%;
-    --sidebar-ring: 0 72% 45%;
+    /* Sidebar */
+    --sidebar-background: 20 10% 5%;
+    --sidebar-foreground: 38 15% 70%;
+    --sidebar-primary: 0 80% 40%;
+    --sidebar-primary-foreground: 38 20% 95%;
+    --sidebar-accent: 20 10% 10%;
+    --sidebar-accent-foreground: 38 20% 88%;
+    --sidebar-border: 20 8% 13%;
+    --sidebar-ring: 0 80% 40%;
 
+    /* Custom HOTD tokens */
     --scroll-gold: 43 72% 42%;
+    --dragon-fire: 15 90% 50%;
+    --valyrian-steel: 220 8% 65%;
+    --ember: 20 85% 35%;
   }
 
   .dark {
-    --background: 0 0% 4%;
-    --foreground: 0 0% 92%;
-
-    --card: 0 0% 7%;
-    --card-foreground: 0 0% 92%;
-
-    --popover: 0 0% 7%;
-    --popover-foreground: 0 0% 92%;
-
-    --primary: 0 72% 45%;
-    --primary-foreground: 0 0% 98%;
-
-    --secondary: 0 0% 12%;
-    --secondary-foreground: 0 0% 80%;
-
-    --muted: 0 0% 12%;
-    --muted-foreground: 0 0% 50%;
-
-    --accent: 0 0% 12%;
-    --accent-foreground: 0 0% 92%;
-
+    --background: 20 10% 3%;
+    --foreground: 38 20% 88%;
+    --card: 20 8% 6%;
+    --card-foreground: 38 20% 88%;
+    --popover: 20 8% 6%;
+    --popover-foreground: 38 20% 88%;
+    --primary: 0 80% 40%;
+    --primary-foreground: 38 20% 95%;
+    --secondary: 25 12% 11%;
+    --secondary-foreground: 38 15% 70%;
+    --muted: 20 8% 10%;
+    --muted-foreground: 30 8% 45%;
+    --accent: 15 15% 10%;
+    --accent-foreground: 38 20% 88%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 98%;
-
-    --border: 0 0% 14%;
-    --input: 0 0% 14%;
-    --ring: 0 72% 45%;
+    --border: 20 8% 12%;
+    --input: 20 8% 12%;
+    --ring: 0 80% 40%;
   }
 }
 
@@ -86,23 +89,88 @@
 
   body {
     @apply bg-background text-foreground;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Cormorant Garamond', serif;
+    font-weight: 400;
+    line-height: 1.7;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Cinzel', serif;
+    letter-spacing: 0.02em;
+  }
+
+  /* Subtle parchment-like texture overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background: radial-gradient(ellipse at 50% 0%, hsla(20, 40%, 15%, 0.08) 0%, transparent 60%);
   }
 }
 
 @layer utilities {
   .font-serif-display {
-    font-family: 'Playfair Display', serif;
+    font-family: 'Cinzel', serif;
   }
 
+  .font-body {
+    font-family: 'Cormorant Garamond', serif;
+  }
+
+  .font-ui {
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Dragon fire gradient — key HOTD signature */
   .text-gradient-fire {
-    background: linear-gradient(135deg, hsl(0, 72%, 55%), hsl(20, 80%, 50%));
+    background: linear-gradient(135deg, hsl(0, 80%, 50%), hsl(30, 90%, 45%), hsl(45, 80%, 50%));
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+  }
+
+  .bg-gradient-fire {
+    background: linear-gradient(135deg, hsl(0, 80%, 40%), hsl(20, 85%, 35%));
+  }
+
+  /* Valyrian steel shimmer */
+  .text-gradient-steel {
+    background: linear-gradient(135deg, hsl(220, 8%, 55%), hsl(38, 20%, 75%), hsl(220, 8%, 55%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Ember border glow */
+  .border-ember-glow {
+    border-color: hsla(0, 80%, 40%, 0.3);
+    box-shadow: 0 0 20px -5px hsla(0, 80%, 40%, 0.15), inset 0 1px 0 hsla(38, 40%, 50%, 0.05);
+  }
+
+  /* Dragon scale texture for cards */
+  .dragon-scale {
+    background-image: 
+      linear-gradient(135deg, hsla(20, 8%, 12%, 0.5) 25%, transparent 25%),
+      linear-gradient(225deg, hsla(20, 8%, 12%, 0.5) 25%, transparent 25%);
+    background-size: 20px 20px;
+  }
+
+  /* Iron Throne shadow */
+  .shadow-throne {
+    box-shadow: 
+      0 4px 6px -1px hsla(0, 0%, 0%, 0.4),
+      0 20px 40px -10px hsla(0, 80%, 30%, 0.1),
+      inset 0 1px 0 hsla(38, 40%, 50%, 0.06);
+  }
+
+  /* Scrollbar styling */
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }
