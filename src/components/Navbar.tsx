@@ -48,22 +48,25 @@ export const Navbar = () => {
   };
 
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-border/30 backdrop-blur-xl" style={{ backgroundColor: "rgba(8, 8, 8, 0.7)" }}>
-      <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
+    <nav className="fixed top-0 z-50 w-full px-4 pt-4">
+      <div
+        className="mx-auto flex h-14 max-w-5xl items-center justify-between rounded-2xl border border-border/40 px-5 shadow-lg shadow-black/10 backdrop-blur-2xl"
+        style={{ backgroundColor: "hsla(0, 0%, 5%, 0.65)" }}
+      >
         {/* Left: Logo */}
         <Link to="/" className="flex items-center gap-2.5">
           <Scroll className="h-5 w-5 text-primary" />
-          <span className="font-serif text-xl font-bold tracking-wide text-foreground">The Scroll</span>
+          <span className="font-serif text-lg font-bold tracking-wide text-foreground">The Scroll</span>
         </Link>
 
         {/* Center: Nav links (landing only) */}
         {isHome && (
-          <div className="hidden md:flex items-center gap-8">
+          <div className="hidden md:flex items-center gap-1 rounded-xl bg-muted/30 px-1.5 py-1">
             {navLinks.map((link) => (
               <button
                 key={link.label}
                 onClick={() => handleNavClick(link.href)}
-                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+                className="rounded-lg px-3.5 py-1.5 text-sm font-medium text-muted-foreground transition-all hover:bg-accent/50 hover:text-foreground"
               >
                 {link.label}
               </button>
@@ -72,15 +75,15 @@ export const Navbar = () => {
         )}
 
         {/* Right: Auth */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2.5">
           {user ? (
             <>
               {role === "scribe" ? (
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+                <Button variant="ghost" size="sm" className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50" asChild>
                   <Link to="/dashboard">Dashboard</Link>
                 </Button>
               ) : (
-                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+                <Button variant="ghost" size="sm" className="rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50" asChild>
                   <Link to="/feed">My Feed</Link>
                 </Button>
               )}
@@ -90,20 +93,20 @@ export const Navbar = () => {
               {role && (
                 <Badge
                   variant="outline"
-                  className={
+                  className={`rounded-lg ${
                     role === "scribe"
                       ? "border-primary/40 bg-primary/10 text-primary"
                       : "border-scroll-gold/40 bg-scroll-gold/10 text-scroll-gold"
-                  }
+                  }`}
                 >
                   {role === "scribe" ? "Scribe" : "Bannerman"}
                 </Badge>
               )}
               <Button
                 variant="ghost"
-                size="sm"
+                size="icon"
                 onClick={signOut}
-                className="text-muted-foreground hover:text-foreground"
+                className="h-8 w-8 rounded-lg text-muted-foreground hover:text-foreground hover:bg-accent/50"
               >
                 <LogOut className="h-4 w-4" />
               </Button>
@@ -115,7 +118,7 @@ export const Navbar = () => {
               </Link>
               <Button
                 size="sm"
-                className="bg-primary text-primary-foreground hover:bg-primary/80 rounded-md px-4"
+                className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/80 px-4"
                 asChild
               >
                 <Link to="/auth">Start a Scroll</Link>
