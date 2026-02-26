@@ -3,6 +3,8 @@ import { Scroll } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { ScrollCard } from "@/components/ScrollCard";
 import { AvatarUpload } from "@/components/AvatarUpload";
+import { AlliancesWidget } from "@/components/AlliancesWidget";
+import { PledgeAllianceModal } from "@/components/PledgeAllianceModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState, useEffect } from "react";
@@ -22,6 +24,7 @@ const fadeUp = {
 const Index = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
+  const [showAllianceModal, setShowAllianceModal] = useState(false);
 
   useEffect(() => {
     trackPageView();
@@ -90,6 +93,7 @@ const Index = () => {
         toast.success("Abonnement confirmé. Bienvenue.");
       }
       setEmail("");
+      setShowAllianceModal(true);
     } catch (error: any) {
       toast.error("Une erreur est survenue. Réessayez.");
     } finally {
@@ -223,6 +227,22 @@ const Index = () => {
           <Scroll className="mx-auto mb-4 h-10 w-10" style={{ color: "#27272A" }} />
           <p style={{ color: "#52525B" }}>Aucune publication pour le moment.</p>
         </section>
+      )}
+
+      {/* Alliances Widget */}
+      {scribe && (
+        <section className="mx-auto max-w-[700px] px-6 pb-16">
+          <AlliancesWidget scribeId={scribe.user_id} />
+        </section>
+      )}
+
+      {/* Pledge Alliance Modal */}
+      {scribe && (
+        <PledgeAllianceModal
+          scribeId={scribe.user_id}
+          open={showAllianceModal}
+          onClose={() => setShowAllianceModal(false)}
+        />
       )}
 
       {/* Footer */}

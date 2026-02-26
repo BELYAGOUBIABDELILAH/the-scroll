@@ -12,6 +12,7 @@ import { useEffect, useState } from "react";
 import { trackScrollView } from "@/lib/analytics";
 import { toast } from "sonner";
 import { CouncilComments } from "@/components/CouncilComments";
+import { PledgeAllianceModal } from "@/components/PledgeAllianceModal";
 
 function getReadingTime(content: string): string {
   const words = content.trim().split(/\s+/).length;
@@ -31,6 +32,7 @@ const ScrollView = () => {
   const [subscribing, setSubscribing] = useState(false);
   const [subscribed, setSubscribed] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [showAllianceModal, setShowAllianceModal] = useState(false);
 
   useEffect(() => {
     if (id) trackScrollView(id);
@@ -95,6 +97,7 @@ const ScrollView = () => {
         toast.success("Abonnement confirmé !");
       }
       setSubscribed(true);
+      setShowAllianceModal(true);
     } catch {
       toast.error("Une erreur est survenue. Réessayez.");
     } finally {
@@ -269,6 +272,13 @@ const ScrollView = () => {
         {canReadFull && (
           <CouncilComments scrollId={scroll.id} authorId={scroll.author_id} />
         )}
+
+        {/* Pledge Alliance Modal */}
+        <PledgeAllianceModal
+          scribeId={scroll.author_id}
+          open={showAllianceModal}
+          onClose={() => setShowAllianceModal(false)}
+        />
       </div>
     </div>
   );

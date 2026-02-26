@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      alliances: {
+        Row: {
+          allied_user_id: string
+          created_at: string
+          description: string
+          display_order: number
+          id: string
+          scribe_id: string
+        }
+        Insert: {
+          allied_user_id: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          scribe_id: string
+        }
+        Update: {
+          allied_user_id?: string
+          created_at?: string
+          description?: string
+          display_order?: number
+          id?: string
+          scribe_id?: string
+        }
+        Relationships: []
+      }
       analytics_events: {
         Row: {
           created_at: string
