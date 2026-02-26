@@ -1,50 +1,72 @@
 
 
-## Chronicles Navigation & Filtered Grid
+## Plan: Substack-Inspired Redesign
 
-### Current State
-The `scrolls` table has no `tag` or `category` column. The feed on `Index.tsx` renders all published scrolls in a flat list with no filtering. The `ScrollEditor.tsx` has no tag selection UI either.
+This is a large overhaul touching the landing page, footer, filtering, and dashboards. I will break it into focused tasks.
 
-### Database Migration
+### What Changes (Substack-inspired patterns)
 
-Add a `tag` column to the `scrolls` table:
+**1. Landing Page Overhaul**
+- **Hero**: Simplify to a cleaner, more Substack-like hero with a prominent tagline, shorter subtitle, and a single orange/primary CTA button ("Get started") + a secondary "Learn more" link. Remove the email input from hero (move subscription to other sections).
+- **Social-proof bar**: Add a row of small stats below the hero (e.g. "10K+ writers", "1M+ readers") like Substack's trust indicators.
+- **Personalized feed section**: Rename "The Great Hall" to a Substack-style "Recommended" or "Popular on The Scroll" feed. Show cards with author avatar, name, post title, excerpt, like/comment counts, and a Subscribe button per author -- matching Substack's card layout.
+- **Categories/Topics navigation**: Add a horizontal scrollable topic bar (like Substack's "Culture", "Politics", "Technology" etc.) above the feed, replacing the current Chronicles filter placement. Make it more prominent.
+- **"Up next" sidebar**: On desktop, add a right sidebar with recommended posts (like Substack's "Up next" panel), showing title + author + read time.
+- **Reorder sections**: Hero -> Topic bar + Feed (2-column with sidebar) -> How It Works -> Testimonials -> CTA -> Footer
 
-```sql
-ALTER TABLE public.scrolls ADD COLUMN tag text NOT NULL DEFAULT 'general';
-```
+**2. Enhanced Footer**
+- Multi-column footer with: About, Product links, Resources, Legal columns
+- Social media icons row
+- Newsletter signup embedded in footer
+- "The Scroll" branding with tagline
 
-No new RLS policies needed — existing policies on `scrolls` already cover this column.
+**3. Improved Filtering**
+- Replace current pill-style filter with a more prominent horizontal tab bar with icons
+- Add a search input at the top of the feed
+- Add sort options (Latest, Popular, Trending)
 
-### New Component: `src/components/ChroniclesFilter.tsx`
+**4. Dashboard Improvements (Writer/Scribe)**
+- Add a welcome header with the writer's name and quick stats summary
+- Improve the scrolls list with thumbnail previews, engagement metrics (views, comments) inline
+- Add a "Quick actions" row: New Scroll, View Profile, Share Profile
+- Better empty states with illustrations/guidance
+- Add a simple line chart for subscriber growth over time (using recharts, already installed)
 
-**Props:** `tags: string[]`, `activeTag: string`, `onTagChange: (tag: string) => void`
+**5. Dashboard for Readers (Bannerman view)**
+- Currently no reader dashboard exists. Add a `/feed` route for logged-in readers showing their subscribed writers' latest scrolls
+- Add a "My Subscriptions" section showing followed writers
 
-- Horizontal scrollable row (`overflow-x-auto`, hidden scrollbar via `scrollbar-hide` utility)
-- Pills rendered as buttons:
-  - **Default:** no background, `#71717A` text, `text-sm` sans-serif, `px-3 py-1.5` rounded-full
-  - **Active:** `#18181B` background, `#FFFFFF` text, `1px solid #27272A` border
-- First pill is always "All" (clears filter)
-- Transition on pill state: `transition-all duration-150`
+### Technical Approach
 
-### Changes to `Index.tsx`
+**Files to create:**
+- `src/components/TopicBar.tsx` -- horizontal scrollable category navigation
+- `src/components/FeedCard.tsx` -- Substack-style post card with avatar, title, excerpt, engagement
+- `src/components/RecommendedSidebar.tsx` -- "Up next" sidebar panel
+- `src/components/Footer.tsx` -- full multi-column footer component
+- `src/components/SubscriberChart.tsx` -- recharts line chart for dashboard
+- `src/pages/Feed.tsx` -- reader feed page
 
-1. Add `activeTag` state (default `"All"`)
-2. Extract unique tags from fetched scrolls to build the pill list
-3. Place `ChroniclesFilter` between the "Publications" heading and the article list
-4. Filter `scrolls` client-side by `activeTag` (if not "All")
-5. Wrap the grid in `AnimatePresence` with a keyed `motion.div` using `opacity` transition (200ms ease-in-out) so cards cross-fade when the tag changes
-6. Replace section heading "Publications" with "Chronicles"
+**Files to modify:**
+- `src/pages/Index.tsx` -- major restructure: new layout, topic bar, 2-column feed + sidebar
+- `src/pages/Dashboard.tsx` -- enhanced header, stats, quick actions, chart, better list items
+- `src/components/Navbar.tsx` -- add search input, update nav links
+- `src/components/DashboardSidebar.tsx` -- minor polish
+- `src/components/ScrollCard.tsx` -- restyle to match Substack post cards (bigger, with engagement)
+- `src/App.tsx` -- add `/feed` route
 
-### Changes to `ScrollEditor.tsx`
+**Key design decisions:**
+- Keep the dark theme but adopt Substack's content-first layout: generous whitespace, clean typography, prominent author avatars
+- Feed cards get larger with more metadata (read time, like count, comment count)
+- 2-column layout on desktop for the main feed (content left, recommendations right)
+- Footer becomes a proper 4-column grid with useful links
 
-1. Add a tag input/select field below the title (simple text input or small preset pill selector)
-2. Include `tag` in both insert and update calls
-3. Load existing tag when editing
-
-### Implementation Steps
-
-1. Run database migration to add `tag` column to `scrolls`
-2. Build `ChroniclesFilter` component with pill menu styling
-3. Update `Index.tsx` — add filter state, render `ChroniclesFilter`, apply client-side filtering with cross-fade animation
-4. Update `ScrollEditor.tsx` — add tag field to editor, persist on save/dispatch
+### Implementation Order
+1. Create Footer component
+2. Create TopicBar component  
+3. Create FeedCard component (Substack-style post card)
+4. Create RecommendedSidebar component
+5. Redesign Index.tsx landing page layout
+6. Enhance Dashboard.tsx with chart, quick actions, better lists
+7. Add reader Feed page + route
+8. Update Navbar with search
 
