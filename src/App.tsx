@@ -12,6 +12,7 @@ import ScrollView from "./pages/ScrollView";
 import Dashboard from "./pages/Dashboard";
 import ScrollEditor from "./pages/ScrollEditor";
 import Settings from "./pages/Settings";
+import WriterProfile from "./pages/WriterProfile";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -28,6 +29,7 @@ const App = () => (
             <Route path="/auth" element={<Auth />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/scroll/:id" element={<ScrollView />} />
+            <Route path="/scribe/:id" element={<WriterProfile />} />
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
             <Route path="/dashboard/write" element={<ProtectedRoute><ScrollEditor /></ProtectedRoute>} />
             <Route path="/dashboard/edit/:id" element={<ProtectedRoute><ScrollEditor /></ProtectedRoute>} />
