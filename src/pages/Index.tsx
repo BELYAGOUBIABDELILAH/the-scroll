@@ -248,69 +248,60 @@ const Index = () => {
           />
         </div>
 
-        {/* 2-column layout */}
-        <div className="grid gap-8 lg:grid-cols-3">
-          {/* Main feed */}
-          <div className="lg:col-span-2">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={activeTag + sortBy + searchQuery}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                transition={{ duration: 0.2 }}
-                className="space-y-4"
-              >
-                {filteredScrolls.length === 0 ? (
-                  <div className="flex flex-col items-center rounded-2xl border border-dashed border-border/60 bg-card/50 p-16 text-center">
-                    <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/5">
-                      <BookOpen className="h-6 w-6 text-primary/40" />
-                    </div>
-                    <p className="font-serif text-lg font-semibold text-foreground/80">No posts found</p>
-                    <p className="mt-1 text-sm text-muted-foreground/60">Try a different search or topic filter.</p>
-                    {activeTag !== "All" && (
-                      <button
-                        onClick={() => setActiveTag("All")}
-                        className="mt-4 text-xs font-medium text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
-                      >
-                        Clear filters
-                      </button>
-                    )}
-                  </div>
-                ) : (
-                  filteredScrolls.map((scroll, i) => (
-                    <motion.div
-                      key={scroll.id}
-                      custom={i}
-                      initial="hidden"
-                      whileInView="visible"
-                      viewport={{ once: true }}
-                      variants={fadeUp}
-                    >
-                      <FeedCard
-                        id={scroll.id}
-                        title={scroll.title}
-                        excerpt={scroll.excerpt}
-                        is_sealed={scroll.is_sealed}
-                        published_at={scroll.published_at}
-                        author_name={scroll.author_name}
-                        author_id={scroll.author_id}
-                        author_avatar={scroll.author_avatar}
-                        tag={scroll.tag}
-                        comment_count={scroll.comment_count}
-                      />
-                    </motion.div>
-                  ))
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={activeTag + sortBy + searchQuery}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            {filteredScrolls.length === 0 ? (
+              <div className="flex flex-col items-center rounded-2xl border border-dashed border-border/60 bg-card/50 p-16 text-center">
+                <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-primary/5">
+                  <BookOpen className="h-6 w-6 text-primary/40" />
+                </div>
+                <p className="font-serif text-lg font-semibold text-foreground/80">No posts found</p>
+                <p className="mt-1 text-sm text-muted-foreground/60">Try a different search or topic filter.</p>
+                {activeTag !== "All" && (
+                  <button
+                    onClick={() => setActiveTag("All")}
+                    className="mt-4 text-xs font-medium text-primary hover:text-primary/80 underline underline-offset-4 transition-colors"
+                  >
+                    Clear filters
+                  </button>
                 )}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Sidebar */}
-          <div className="hidden lg:block">
-            <RecommendedSidebar />
-          </div>
-        </div>
+              </div>
+            ) : (
+              <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide -mx-6 px-6 snap-x snap-mandatory">
+                {filteredScrolls.map((scroll, i) => (
+                  <motion.div
+                    key={scroll.id}
+                    custom={i}
+                    initial="hidden"
+                    whileInView="visible"
+                    viewport={{ once: true }}
+                    variants={fadeUp}
+                    className="w-[340px] shrink-0 snap-start"
+                  >
+                    <FeedCard
+                      id={scroll.id}
+                      title={scroll.title}
+                      excerpt={scroll.excerpt}
+                      is_sealed={scroll.is_sealed}
+                      published_at={scroll.published_at}
+                      author_name={scroll.author_name}
+                      author_id={scroll.author_id}
+                      author_avatar={scroll.author_avatar}
+                      tag={scroll.tag}
+                      comment_count={scroll.comment_count}
+                    />
+                  </motion.div>
+                ))}
+              </div>
+            )}
+          </motion.div>
+        </AnimatePresence>
       </section>
 
       {/* ═══════════════════════════════════════════
