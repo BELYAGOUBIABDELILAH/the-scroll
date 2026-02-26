@@ -3,16 +3,23 @@ import { Link } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { Navbar } from "@/components/Navbar";
+import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { AllianceManager } from "@/components/AllianceManager";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Feather, Trash2, Eye, EyeOff, Mail, Users, Handshake } from "lucide-react";
+import { Trash2, Eye, EyeOff, Mail, Users } from "lucide-react";
 import { format } from "date-fns";
 import { useToast } from "@/hooks/use-toast";
 
 type Tab = "drafts" | "published" | "bannermen" | "alliances";
+
+const tabTitles: Record<Tab, string> = {
+  drafts: "Drafts",
+  published: "Published",
+  bannermen: "Bannermen",
+  alliances: "Alliances",
+};
 
 const Dashboard = () => {
   const { user } = useAuth();
@@ -72,7 +79,6 @@ const Dashboard = () => {
     enabled: !!user,
   });
 
-  // Fetch email subscribers
   const { data: emailSubs } = useQuery({
     queryKey: ["email-subscribers"],
     queryFn: async () => {
@@ -112,48 +118,21 @@ const Dashboard = () => {
     },
   });
 
-  const tabs: { key: Tab; label: string }[] = [
-    { key: "drafts", label: "Drafts" },
-    { key: "published", label: "Published" },
-    { key: "bannermen", label: "Bannermen" },
-    { key: "alliances", label: "Alliances" },
-  ];
-
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="mx-auto max-w-4xl px-6 pt-24 pb-16">
-        <div className="mb-8 flex items-center justify-between">
-          <h1 className="font-serif text-3xl font-bold text-foreground">Dashboard</h1>
-          <Button className="bg-primary text-primary-foreground hover:bg-primary/80" asChild>
-            <Link to="/dashboard/write">
-              <Feather className="mr-2 h-4 w-4" />
-              Write New Scroll
-            </Link>
-          </Button>
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar activeTab={tab} onTabChange={(t) => setTab(t as Tab)} />
+
+      {/* Main content — offset by sidebar width */}
+      <main className="ml-56 flex-1 px-8 py-8">
+        {/* Header */}
+        <div className="mb-8">
+          <h1 className="font-serif text-3xl font-bold text-foreground">{tabTitles[tab]}</h1>
         </div>
 
-        {/* Analytics Bento Grid */}
+        {/* Metrics */}
         <DashboardAnalytics />
 
-        {/* Tabs */}
-        <div className="mb-8 flex gap-1 rounded-lg border border-border bg-secondary p-1">
-          {tabs.map((t) => (
-            <button
-              key={t.key}
-              onClick={() => setTab(t.key)}
-              className={`flex-1 rounded-md px-4 py-2 text-sm font-medium transition-colors ${
-                tab === t.key
-                  ? "bg-background text-foreground"
-                  : "text-muted-foreground hover:text-foreground"
-              }`}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-
-        {/* Drafts */}
+        {/* Tab content */}
         {tab === "drafts" && (
           <div className="space-y-3">
             {drafts?.length === 0 && (
@@ -195,7 +174,6 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Published */}
         {tab === "published" && (
           <div className="space-y-3">
             {published?.length === 0 && (
@@ -242,10 +220,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Bannermen */}
         {tab === "bannermen" && (
           <div className="space-y-6">
-            {/* Email Subscribers */}
             <div>
               <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Mail className="h-4 w-4" />
@@ -269,7 +245,6 @@ const Dashboard = () => {
               </div>
             </div>
 
-            {/* Account Subscribers */}
             <div>
               <div className="mb-3 flex items-center gap-2 text-sm font-medium text-muted-foreground">
                 <Users className="h-4 w-4" />
@@ -295,9 +270,8 @@ const Dashboard = () => {
           </div>
         )}
 
-        {/* Alliances */}
         {tab === "alliances" && <AllianceManager />}
-      </div>
+      </main>
     </div>
   );
 };

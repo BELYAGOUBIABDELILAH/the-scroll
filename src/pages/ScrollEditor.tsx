@@ -2,14 +2,22 @@ import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
-import { Navbar } from "@/components/Navbar";
+import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import { Label } from "@/components/ui/label";
-import { Send, Save } from "lucide-react";
+import { Send, Save, ChevronDown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+
+const TAG_OPTIONS = ["general", "tactics", "lore", "decrees", "chronicles"];
 
 const ScrollEditor = () => {
   const { id } = useParams<{ id: string }>();
@@ -23,9 +31,8 @@ const ScrollEditor = () => {
   const [isSealed, setIsSealed] = useState(false);
   const [saving, setSaving] = useState(false);
   const [dispatching, setDispatching] = useState(false);
-  const [loaded, setLoaded] = useState(!id); // true immediately if new scroll
+  const [loaded, setLoaded] = useState(!id);
 
-  // Load existing scroll for editing
   useEffect(() => {
     if (!id || !user) return;
     const load = async () => {
@@ -50,7 +57,6 @@ const ScrollEditor = () => {
   }, [id, user]);
 
   const generateExcerpt = (text: string) => {
-    // Strip markdown and take first 200 chars
     const plain = text
       .replace(/^#+\s/gm, "")
       .replace(/\*\*(.+?)\*\*/g, "$1")
@@ -78,7 +84,6 @@ const ScrollEditor = () => {
           .select("id")
           .single();
         if (error) throw error;
-        // Navigate to edit URL so subsequent saves update
         navigate(`/dashboard/edit/${data.id}`, { replace: true });
       }
       toast({ title: "Draft saved" });
@@ -101,26 +106,15 @@ const ScrollEditor = () => {
         const { error } = await supabase
           .from("scrolls")
           .update({
-            title,
-            content,
-            excerpt,
-            is_sealed: isSealed,
-            tag,
-            status: "published",
-            published_at: new Date().toISOString(),
+            title, content, excerpt, is_sealed: isSealed, tag,
+            status: "published", published_at: new Date().toISOString(),
           } as any)
           .eq("id", id);
         if (error) throw error;
       } else {
         const { error } = await supabase.from("scrolls").insert({
-          title,
-          content,
-          excerpt,
-          is_sealed: isSealed,
-          tag,
-          author_id: user.id,
-          status: "published",
-          published_at: new Date().toISOString(),
+          title, content, excerpt, is_sealed: isSealed, tag,
+          author_id: user.id, status: "published", published_at: new Date().toISOString(),
         } as any);
         if (error) throw error;
       }
@@ -142,83 +136,87 @@ const ScrollEditor = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      <Navbar />
-      <div className="mx-auto max-w-3xl px-6 pt-24 pb-16">
-        {/* Title */}
-        <Input
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Title of your scroll…"
-          className="mb-6 border-none bg-transparent font-serif text-3xl font-bold text-foreground placeholder:text-muted-foreground/40 focus-visible:ring-0 p-0 h-auto"
-        />
+    <div className="flex min-h-screen bg-background">
+      <DashboardSidebar activeTab="drafts" onTabChange={() => navigate("/dashboard")} />
 
-        {/* Tag */}
-        <div className="mb-6 flex items-center gap-2 flex-wrap">
-          <Label className="text-sm text-muted-foreground shrink-0">Tag</Label>
-          {["general", "tactics", "lore", "decrees", "chronicles"].map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTag(t)}
-              className={`rounded-full px-3 py-1 text-sm font-medium capitalize transition-all duration-150 ${
-                tag === t
-                  ? "border text-white"
-                  : "border border-transparent text-muted-foreground"
-              }`}
-              style={
-                tag === t
-                  ? { backgroundColor: "#18181B", color: "#FFFFFF", borderColor: "#27272A" }
-                  : {}
-              }
-            >
-              {t}
-            </button>
-          ))}
-        </div>
-
-        {/* Content */}
-        <Textarea
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Begin writing… (Markdown supported)"
-          className="min-h-[400px] resize-none border-none bg-transparent text-foreground/90 leading-relaxed placeholder:text-muted-foreground/30 focus-visible:ring-0 p-0"
-        />
-
-        {/* Controls */}
-        <div className="mt-8 flex items-center justify-between rounded-lg border border-border bg-card p-4">
+      <main className="ml-56 flex-1">
+        {/* Top bar with tag + actions */}
+        <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-background/80 backdrop-blur-sm px-8 py-3">
           <div className="flex items-center gap-3">
-            <Switch
-              id="sealed"
-              checked={isSealed}
-              onCheckedChange={setIsSealed}
-            />
-            <Label htmlFor="sealed" className="text-sm text-muted-foreground cursor-pointer">
-              {isSealed ? "Sealed (subscribers only)" : "Unsealed (public)"}
-            </Label>
+            <div className="flex items-center gap-2">
+              <Switch
+                id="sealed"
+                checked={isSealed}
+                onCheckedChange={setIsSealed}
+              />
+              <Label htmlFor="sealed" className="text-xs text-muted-foreground cursor-pointer">
+                {isSealed ? "Sealed" : "Public"}
+              </Label>
+            </div>
           </div>
 
           <div className="flex items-center gap-2">
+            {/* Tag dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-1.5 rounded-full border border-border bg-card px-3 py-1.5 text-xs font-medium capitalize text-muted-foreground transition-colors hover:text-foreground">
+                  {tag}
+                  <ChevronDown className="h-3 w-3" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="bg-popover border-border z-[60]">
+                {TAG_OPTIONS.map((t) => (
+                  <DropdownMenuItem
+                    key={t}
+                    onClick={() => setTag(t)}
+                    className={`capitalize ${tag === t ? "text-primary" : ""}`}
+                  >
+                    {t}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
             <Button
               variant="outline"
+              size="sm"
               onClick={saveDraft}
               disabled={saving}
               className="border-border text-foreground"
             >
-              <Save className="mr-2 h-4 w-4" />
-              {saving ? "Saving…" : "Save Draft"}
+              <Save className="mr-1.5 h-3.5 w-3.5" />
+              {saving ? "Saving…" : "Save"}
             </Button>
+
             <Button
+              size="sm"
               onClick={dispatch}
               disabled={dispatching}
               className="bg-primary text-primary-foreground hover:bg-primary/80"
             >
-              <Send className="mr-2 h-4 w-4" />
-              {dispatching ? "Dispatching…" : "Dispatch"}
+              <Send className="mr-1.5 h-3.5 w-3.5" />
+              {dispatching ? "…" : "Dispatch"}
             </Button>
           </div>
         </div>
-      </div>
+
+        {/* Writing canvas */}
+        <div className="mx-auto max-w-3xl px-8 pt-12 pb-32">
+          <Input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Title of your scroll…"
+            className="mb-8 border-none bg-transparent font-serif text-4xl font-bold text-foreground placeholder:text-muted-foreground/30 focus-visible:ring-0 p-0 h-auto"
+          />
+
+          <Textarea
+            value={content}
+            onChange={(e) => setContent(e.target.value)}
+            placeholder="Begin writing… (Markdown supported)"
+            className="min-h-[500px] resize-none border-none bg-transparent text-foreground/90 text-base leading-[1.8] placeholder:text-muted-foreground/20 focus-visible:ring-0 p-0"
+          />
+        </div>
+      </main>
     </div>
   );
 };
