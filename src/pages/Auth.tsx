@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { supabase } from "@/integrations/supabase/client";
@@ -10,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/contexts/AuthContext";
 import { useEffect } from "react";
 
-type AuthMode = "signin" | "signup";
+type AuthMode = "signin" | "signup" | "forgot";
 type Role = "scribe" | "bannerman";
 
 const Auth = () => {
@@ -33,7 +34,17 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      if (mode === "signup") {
+      if (mode === "forgot") {
+        const { error } = await supabase.auth.resetPasswordForEmail(email, {
+          redirectTo: `${window.location.origin}/reset-password`,
+        });
+        if (error) throw error;
+        toast({
+          title: "Raven sent",
+          description: "Check your email for a password reset link.",
+        });
+        setMode("signin");
+      } else if (mode === "signup") {
         const { error } = await supabase.auth.signUp({
           email,
           password,
@@ -83,12 +94,14 @@ const Auth = () => {
         <div className="mb-8 text-center">
           <Scroll className="mx-auto mb-3 h-8 w-8 text-primary" />
           <h1 className="font-serif text-3xl font-bold text-foreground">
-            {mode === "signin" ? "Enter the Keep" : "Pledge Your Name"}
+            {mode === "signin" ? "Enter the Keep" : mode === "signup" ? "Pledge Your Name" : "Forgot Password"}
           </h1>
           <p className="mt-2 text-sm text-muted-foreground">
             {mode === "signin"
               ? "Sign in to access your scrolls."
-              : "Create your account and choose your path."}
+              : mode === "signup"
+              ? "Create your account and choose your path."
+              : "Enter your email and we'll send a raven."}
           </p>
         </div>
 
@@ -126,21 +139,33 @@ const Auth = () => {
               />
             </div>
 
-            <div className="space-y-2">
-              <Label htmlFor="password" className="text-muted-foreground text-sm">
-                Password
-              </Label>
-              <Input
-                id="password"
-                type="password"
-                required
-                minLength={6}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="••••••••"
-                className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
-              />
-            </div>
+            {mode !== "forgot" && (
+              <div className="space-y-2">
+                <Label htmlFor="password" className="text-muted-foreground text-sm">
+                  Password
+                </Label>
+                <Input
+                  id="password"
+                  type="password"
+                  required
+                  minLength={6}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="••••••••"
+                  className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
+                />
+              </div>
+            )}
+
+            {mode === "signin" && (
+              <button
+                type="button"
+                onClick={() => setMode("forgot")}
+                className="text-xs text-muted-foreground hover:text-primary"
+              >
+                Forgot your password?
+              </button>
+            )}
 
             {/* Role Selection — signup only */}
             {mode === "signup" && (
@@ -185,32 +210,27 @@ const Auth = () => {
           >
             <Shield className="mr-2 h-4 w-4" />
             {loading
-              ? "Opening the gates…"
+              ? "Sending…"
               : mode === "signin"
               ? "Enter the Keep"
-              : "Seal My Name"}
+              : mode === "signup"
+              ? "Seal My Name"
+              : "Send Recovery Raven"}
           </Button>
         </form>
 
-        {/* Toggle mode */}
         <p className="mt-6 text-center text-sm text-muted-foreground">
           {mode === "signin" ? (
             <>
               No account yet?{" "}
-              <button
-                onClick={() => setMode("signup")}
-                className="text-primary hover:underline"
-              >
+              <button onClick={() => setMode("signup")} className="text-primary hover:underline">
                 Pledge your name
               </button>
             </>
           ) : (
             <>
               Already have an account?{" "}
-              <button
-                onClick={() => setMode("signin")}
-                className="text-primary hover:underline"
-              >
+              <button onClick={() => setMode("signin")} className="text-primary hover:underline">
                 Enter the Keep
               </button>
             </>
