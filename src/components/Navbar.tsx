@@ -1,15 +1,23 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Scroll, LogOut, Settings } from "lucide-react";
+import { Scroll, LogOut } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
+
+const navLinks = [
+  { label: "Discover", href: "/#chronicles" },
+  { label: "The Council", href: "/#council" },
+  { label: "Features", href: "/#features" },
+];
 
 export const Navbar = () => {
   const { user, signOut } = useAuth();
   const [displayName, setDisplayName] = useState<string | null>(null);
   const [role, setRole] = useState<string | null>(null);
+  const location = useLocation();
+  const isHome = location.pathname === "/";
 
   useEffect(() => {
     if (!user) {
@@ -30,14 +38,41 @@ export const Navbar = () => {
     fetchProfile();
   }, [user]);
 
+  const handleNavClick = (href: string) => {
+    if (href.startsWith("/#")) {
+      const id = href.slice(2);
+      const el = document.getElementById(id);
+      if (el) {
+        el.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  };
+
   return (
-    <nav className="fixed top-0 z-50 w-full border-b border-border/40 bg-background/80 backdrop-blur-md">
+    <nav className="fixed top-0 z-50 w-full border-b border-border/30 backdrop-blur-xl" style={{ backgroundColor: "rgba(8, 8, 8, 0.7)" }}>
       <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-6">
-        <Link to="/" className="flex items-center gap-2">
+        {/* Left: Logo */}
+        <Link to="/" className="flex items-center gap-2.5">
           <Scroll className="h-5 w-5 text-primary" />
           <span className="font-serif text-xl font-bold tracking-wide text-foreground">The Scroll</span>
         </Link>
 
+        {/* Center: Nav links (landing only) */}
+        {isHome && (
+          <div className="hidden md:flex items-center gap-8">
+            {navLinks.map((link) => (
+              <button
+                key={link.label}
+                onClick={() => handleNavClick(link.href)}
+                className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
+              >
+                {link.label}
+              </button>
+            ))}
+          </div>
+        )}
+
+        {/* Right: Auth */}
         <div className="flex items-center gap-3">
           {user ? (
             <>
@@ -71,9 +106,18 @@ export const Navbar = () => {
               </Button>
             </>
           ) : (
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-              <Link to="/auth">Sign In</Link>
-            </Button>
+            <>
+              <Link to="/auth" className="text-sm font-medium text-muted-foreground transition-colors hover:text-foreground">
+                Sign In
+              </Link>
+              <Button
+                size="sm"
+                className="bg-primary text-primary-foreground hover:bg-primary/80 rounded-md px-4"
+                asChild
+              >
+                <Link to="/auth">Start a Scroll</Link>
+              </Button>
+            </>
           )}
         </div>
       </div>
