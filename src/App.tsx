@@ -15,6 +15,7 @@ import ScrollEditor from "./pages/ScrollEditor";
 import Settings from "./pages/Settings";
 import WriterProfile from "./pages/WriterProfile";
 import Pricing from "./pages/Pricing";
+import WriterGuide from "./pages/WriterGuide";
 import HelpCenter from "./pages/HelpCenter";
 import Community from "./pages/Community";
 import Blog from "./pages/Blog";
@@ -48,6 +49,7 @@ const App = () => (
             <Route path="/blog" element={<Blog />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/writer-guide" element={<WriterGuide />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

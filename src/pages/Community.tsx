@@ -2,7 +2,14 @@ import { Navbar } from "@/components/Navbar";
 import { Footer } from "@/components/Footer";
 import { motion } from "framer-motion";
 import { Link } from "react-router-dom";
-import { Users, MessageSquare, Award, ArrowRight } from "lucide-react";
+import { Users, MessageSquare, Award, ArrowRight, Send, Trash2 } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useState } from "react";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { toast } from "sonner";
+import { formatDistanceToNow } from "date-fns";
 
 const communityFeatures = [
   {
@@ -32,6 +39,70 @@ const communityFeatures = [
 ];
 
 const Community = () => {
+  const { user } = useAuth();
+  const queryClient = useQueryClient();
+  const [newComment, setNewComment] = useState("");
+
+  // Fetch testimonials with profiles
+  const { data: testimonials } = useQuery({
+    queryKey: ["community-testimonials"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("community_testimonials")
+        .select("*")
+        .order("created_at", { ascending: false });
+      if (!data?.length) return [];
+      const userIds = [...new Set(data.map((t: any) => t.user_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, avatar_url")
+        .in("user_id", userIds);
+      const profileMap = new Map(
+        (profiles ?? []).map((p) => [p.user_id, p])
+      );
+      return data.map((t: any) => ({
+        ...t,
+        display_name: profileMap.get(t.user_id)?.display_name ?? "Anonymous",
+        avatar_url: profileMap.get(t.user_id)?.avatar_url ?? null,
+      }));
+    },
+  });
+
+  const postMutation = useMutation({
+    mutationFn: async (content: string) => {
+      const { error } = await supabase
+        .from("community_testimonials")
+        .insert({ user_id: user!.id, content });
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["community-testimonials"] });
+      setNewComment("");
+      toast.success("Comment posted!");
+    },
+    onError: () => toast.error("Failed to post comment"),
+  });
+
+  const deleteMutation = useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from("community_testimonials")
+        .delete()
+        .eq("id", id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["community-testimonials"] });
+      toast.success("Comment deleted");
+    },
+  });
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim()) return;
+    postMutation.mutate(newComment.trim());
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
@@ -93,6 +164,88 @@ const Community = () => {
               <p className="mt-1 text-xs text-muted-foreground">{s.label}</p>
             </div>
           ))}
+        </motion.div>
+
+        {/* Community Comments Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5 }}
+          className="mt-20"
+        >
+          <h2 className="font-serif text-3xl font-bold text-foreground mb-2">Community Voices</h2>
+          <p className="text-sm text-muted-foreground mb-8">Share your experience, thoughts, or feedback with the community.</p>
+
+          {/* Post form */}
+          {user ? (
+            <form onSubmit={handleSubmit} className="mb-8 flex gap-3">
+              <input
+                value={newComment}
+                onChange={(e) => setNewComment(e.target.value)}
+                placeholder="Share your thoughts with the community…"
+                className="flex-1 rounded-xl border border-border bg-background px-4 py-3 text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/50"
+                maxLength={500}
+              />
+              <button
+                type="submit"
+                disabled={postMutation.isPending || !newComment.trim()}
+                className="flex shrink-0 items-center gap-2 rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+              >
+                <Send className="h-4 w-4" />
+                Post
+              </button>
+            </form>
+          ) : (
+            <div className="mb-8 rounded-xl border border-border bg-card p-6 text-center">
+              <p className="text-sm text-muted-foreground mb-3">Sign in to share your thoughts with the community.</p>
+              <Link
+                to="/auth"
+                className="inline-flex items-center rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground hover:opacity-90"
+              >
+                Sign In
+              </Link>
+            </div>
+          )}
+
+          {/* Comments list */}
+          <div className="space-y-4">
+            {testimonials?.length === 0 && (
+              <div className="rounded-xl border border-border bg-card p-10 text-center">
+                <MessageSquare className="mx-auto mb-3 h-8 w-8 text-muted-foreground" />
+                <p className="text-muted-foreground">Be the first to share your thoughts!</p>
+              </div>
+            )}
+            {testimonials?.map((t: any) => (
+              <div
+                key={t.id}
+                className="flex gap-4 rounded-xl border border-border bg-card p-5"
+              >
+                <Avatar className="h-10 w-10 shrink-0">
+                  <AvatarImage src={t.avatar_url} />
+                  <AvatarFallback className="bg-muted text-muted-foreground text-sm">
+                    {(t.display_name?.[0] ?? "?").toUpperCase()}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-sm font-semibold text-foreground">{t.display_name}</span>
+                    <span className="text-xs text-muted-foreground">
+                      {formatDistanceToNow(new Date(t.created_at), { addSuffix: true })}
+                    </span>
+                  </div>
+                  <p className="text-sm leading-relaxed text-muted-foreground">{t.content}</p>
+                </div>
+                {user?.id === t.user_id && (
+                  <button
+                    onClick={() => deleteMutation.mutate(t.id)}
+                    className="shrink-0 self-start text-muted-foreground hover:text-destructive transition-colors"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
         </motion.div>
       </main>
       <Footer />

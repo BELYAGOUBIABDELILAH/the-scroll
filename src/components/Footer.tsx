@@ -104,7 +104,6 @@ export const Footer = () => {
               {[
                 { label: "Start Writing", href: "/auth" },
                 { label: "Discover", href: "/#chronicles" },
-                { label: "Pricing", href: "/pricing" },
                 { label: "Features", href: "/#features" },
                 { label: "Blog", href: "/blog" },
               ].map((l) => (
@@ -124,8 +123,7 @@ export const Footer = () => {
               {[
                 { label: "Help Center", href: "/help" },
                 { label: "Community", href: "/community" },
-                { label: "Writer Guide", href: "/help" },
-                { label: "API Docs", href: "/help" },
+                { label: "Writer Guide", href: "/writer-guide" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link to={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
@@ -143,7 +141,6 @@ export const Footer = () => {
               {[
                 { label: "Privacy Policy", href: "/privacy" },
                 { label: "Terms of Service", href: "/terms" },
-                { label: "Cookie Policy", href: "/privacy" },
               ].map((l) => (
                 <li key={l.label}>
                   <Link to={l.href} className="text-sm text-muted-foreground transition-colors hover:text-foreground">
