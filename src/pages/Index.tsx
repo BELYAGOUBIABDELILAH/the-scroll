@@ -1,17 +1,14 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Feather, BookOpen, Shield, Scroll } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Input } from "@/components/ui/input";
+import { Scroll } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
-
-const MOCK_SCROLLS = [
-  { id: 1, title: "The Weight of the Iron Crown", author: "Vaelys Blackthorn", excerpt: "Power is not given. It is forged in fire, tempered with blood, and worn until it breaks you…", sealed: false, date: "3 days ago" },
-  { id: 2, title: "On the Nature of Dragons", author: "Serenei of Lys", excerpt: "They do not serve. They do not obey. They simply are — and the world bends around them.", sealed: true, date: "1 week ago" },
-  { id: 3, title: "Letters from the Wall", author: "Maegor the Chronicler", excerpt: "The cold teaches patience. When the wind cuts to bone, you learn what truly matters…", sealed: false, date: "2 weeks ago" },
-  { id: 4, title: "A Treatise on Loyalty", author: "Vaelys Blackthorn", excerpt: "Bannermen do not choose their lords lightly. The pledge, once spoken, is written in blood.", sealed: true, date: "3 weeks ago" },
-  { id: 5, title: "The Art of the Small Council", author: "Serenei of Lys", excerpt: "Every whisper in the throne room has a price. The wise learn to listen before they speak.", sealed: false, date: "1 month ago" },
-  { id: 6, title: "Fire Cannot Kill a Dragon", author: "Maegor the Chronicler", excerpt: "They said the last dragon died in a cage. They were wrong — it merely waited.", sealed: false, date: "1 month ago" },
-];
+import { ScrollCard } from "@/components/ScrollCard";
+import { supabase } from "@/integrations/supabase/client";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useToast } from "@/hooks/use-toast";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -23,151 +20,180 @@ const fadeUp = {
 };
 
 const Index = () => {
+  const [email, setEmail] = useState("");
+  const [subscribing, setSubscribing] = useState(false);
+  const { toast } = useToast();
+
+  // Fetch the first scribe's profile for the hero
+  const { data: scribe } = useQuery({
+    queryKey: ["scribe-profile"],
+    queryFn: async () => {
+      const { data: roles } = await supabase
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "scribe")
+        .limit(1);
+      if (!roles?.length) return null;
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("user_id", roles[0].user_id)
+        .single();
+      return profile;
+    },
+  });
+
+  // Fetch published scrolls with author names
+  const { data: scrolls } = useQuery({
+    queryKey: ["published-scrolls"],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from("scrolls")
+        .select("*")
+        .eq("status", "published")
+        .order("published_at", { ascending: false });
+      if (!data?.length) return [];
+
+      // Get author profiles
+      const authorIds = [...new Set(data.map((s) => s.author_id))];
+      const { data: profiles } = await supabase
+        .from("profiles")
+        .select("user_id, display_name")
+        .in("user_id", authorIds);
+
+      const profileMap = new Map(
+        (profiles ?? []).map((p) => [p.user_id, p.display_name ?? "Unknown"])
+      );
+
+      return data.map((s) => ({
+        ...s,
+        author_name: profileMap.get(s.author_id) ?? "Unknown",
+      }));
+    },
+  });
+
+  const handleSubscribe = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    setSubscribing(true);
+    // For now, show a success toast. Full subscribe logic would insert into a subscribers/email list.
+    toast({
+      title: "Fealty pledged!",
+      description: "You'll receive new scrolls by raven.",
+    });
+    setEmail("");
+    setSubscribing(false);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Navbar />
 
       {/* Hero */}
-      <section className="relative flex min-h-[85vh] flex-col items-center justify-center px-6 pt-16">
-        {/* Background ember effect */}
+      <section className="relative flex min-h-[70vh] flex-col items-center justify-center px-6 pt-16">
         <div className="pointer-events-none absolute inset-0 overflow-hidden">
           <div className="absolute left-1/2 top-1/3 h-[600px] w-[600px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-primary/5 blur-[120px] animate-ember-glow" />
         </div>
 
         <motion.div
-          className="relative z-10 max-w-3xl text-center"
+          className="relative z-10 flex max-w-xl flex-col items-center text-center"
           initial="hidden"
           animate="visible"
-          variants={{
-            visible: { transition: { staggerChildren: 0.15 } },
-          }}
+          variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
         >
-          <motion.p
-            variants={fadeUp}
-            custom={0}
-            className="mb-4 text-sm font-medium uppercase tracking-[0.3em] text-primary"
-          >
-            A Micro-Publishing Platform
-          </motion.p>
+          <motion.div variants={fadeUp} custom={0}>
+            <Avatar className="mb-4 h-20 w-20 border-2 border-primary/30">
+              <AvatarImage src={scribe?.avatar_url ?? undefined} />
+              <AvatarFallback className="bg-secondary text-foreground font-serif text-2xl">
+                {scribe?.display_name?.[0]?.toUpperCase() ?? "S"}
+              </AvatarFallback>
+            </Avatar>
+          </motion.div>
 
           <motion.h1
             variants={fadeUp}
             custom={1}
-            className="mb-6 font-serif text-5xl font-bold leading-tight tracking-tight text-foreground md:text-7xl"
+            className="mb-2 font-serif text-4xl font-bold text-foreground md:text-5xl"
           >
-            Seal your words.{" "}
-            <span className="text-gradient-fire italic">Send your ravens.</span>
+            {scribe?.display_name ?? "The Scroll"}
           </motion.h1>
 
-          <motion.p
-            variants={fadeUp}
-            custom={2}
-            className="mx-auto mb-10 max-w-xl text-lg leading-relaxed text-muted-foreground"
-          >
-            An exclusive publishing chamber for writers who craft words worth sealing.
-            Publish scrolls to your bannermen in a cinematic, distraction-free sanctuary.
+          <motion.p variants={fadeUp} custom={2} className="mb-8 max-w-md text-muted-foreground leading-relaxed">
+            {scribe?.bio ??
+              "An exclusive publishing chamber for writers who craft words worth sealing. Subscribe to receive new scrolls by raven."}
           </motion.p>
 
-          <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-4">
-            <Button size="lg" className="bg-primary px-8 text-primary-foreground hover:bg-primary/80" asChild>
-              <Link to="/auth">
-                <Shield className="mr-2 h-4 w-4" />
-                Enter the Keep
-              </Link>
+          <motion.form
+            variants={fadeUp}
+            custom={3}
+            onSubmit={handleSubscribe}
+            className="flex w-full max-w-sm gap-2"
+          >
+            <Input
+              type="email"
+              placeholder="your@email.com"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="border-border bg-secondary text-foreground placeholder:text-muted-foreground"
+            />
+            <Button
+              type="submit"
+              disabled={subscribing}
+              className="shrink-0 bg-primary text-primary-foreground hover:bg-primary/80"
+            >
+              Pledge Fealty
             </Button>
-            <Button size="lg" variant="outline" className="border-border px-8 text-foreground hover:bg-secondary" asChild>
-              <Link to="/auth">
-                <BookOpen className="mr-2 h-4 w-4" />
-                Read the Scrolls
-              </Link>
-            </Button>
+          </motion.form>
+        </motion.div>
+      </section>
+
+      {/* Scrolls Feed */}
+      {scrolls && scrolls.length > 0 && (
+        <section className="mx-auto max-w-6xl px-6 pb-24">
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8 }}
+            className="mb-12 text-center"
+          >
+            <h2 className="mb-3 font-serif text-3xl font-bold text-foreground">Recent Scrolls</h2>
+            <p className="text-muted-foreground">From the quills of our scribes.</p>
           </motion.div>
-        </motion.div>
-      </section>
 
-      {/* How it works */}
-      <section className="mx-auto max-w-5xl px-6 py-24">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mb-16 text-center"
-        >
-          <h2 className="mb-3 font-serif text-3xl font-bold text-foreground">How The Scroll Works</h2>
-          <p className="text-muted-foreground">Three steps from quill to raven.</p>
-        </motion.div>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {scrolls.map((scroll, i) => (
+              <motion.div
+                key={scroll.id}
+                custom={i}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true }}
+                variants={fadeUp}
+              >
+                <ScrollCard
+                  id={scroll.id}
+                  title={scroll.title}
+                  excerpt={scroll.excerpt}
+                  is_sealed={scroll.is_sealed}
+                  published_at={scroll.published_at}
+                  author_name={scroll.author_name}
+                  featured={i === 0}
+                />
+              </motion.div>
+            ))}
+          </div>
+        </section>
+      )}
 
-        <div className="grid gap-8 md:grid-cols-3">
-          {[
-            { icon: Feather, title: "Write Your Scroll", desc: "A distraction-free markdown editor. No clutter — just your words and the blank page." },
-            { icon: Shield, title: "Seal or Unseal", desc: "Choose who reads your work. Unsealed scrolls are public; sealed ones require an account." },
-            { icon: BookOpen, title: "Send the Raven", desc: "Publish instantly. Your bannermen receive your words in their personal feed." },
-          ].map((step, i) => (
-            <motion.div
-              key={step.title}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className="group rounded-lg border border-border bg-card p-8 transition-colors hover:border-primary/30"
-            >
-              <step.icon className="mb-4 h-8 w-8 text-primary" />
-              <h3 className="mb-2 font-serif text-xl font-semibold text-foreground">{step.title}</h3>
-              <p className="text-sm leading-relaxed text-muted-foreground">{step.desc}</p>
-            </motion.div>
-          ))}
-        </div>
-      </section>
-
-      {/* Featured Scrolls — Bento Grid */}
-      <section className="mx-auto max-w-6xl px-6 pb-24">
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="mb-12 text-center"
-        >
-          <h2 className="mb-3 font-serif text-3xl font-bold text-foreground">Recent Scrolls</h2>
-          <p className="text-muted-foreground">From the quills of our scribes.</p>
-        </motion.div>
-
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {MOCK_SCROLLS.map((scroll, i) => (
-            <motion.article
-              key={scroll.id}
-              custom={i}
-              initial="hidden"
-              whileInView="visible"
-              viewport={{ once: true }}
-              variants={fadeUp}
-              className={`group cursor-pointer rounded-lg border border-border bg-card p-6 transition-all hover:border-primary/30 hover:bg-card/80 ${
-                i === 0 ? "sm:col-span-2 lg:col-span-2 lg:row-span-2 lg:p-10" : ""
-              }`}
-            >
-              <div className="mb-3 flex items-center gap-2">
-                {scroll.sealed && (
-                  <span className="rounded-full border border-primary/30 bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
-                    Sealed
-                  </span>
-                )}
-                <span className="text-xs text-muted-foreground">{scroll.date}</span>
-              </div>
-              <h3 className={`mb-2 font-serif font-bold text-foreground ${i === 0 ? "text-2xl lg:text-3xl" : "text-lg"}`}>
-                {scroll.title}
-              </h3>
-              <p className={`mb-4 leading-relaxed text-muted-foreground ${i === 0 ? "text-base" : "text-sm"}`}>
-                {scroll.excerpt}
-              </p>
-              <p className="text-xs font-medium text-muted-foreground">
-                by <span className="text-foreground">{scroll.author}</span>
-              </p>
-            </motion.article>
-          ))}
-        </div>
-      </section>
+      {/* Empty state */}
+      {scrolls && scrolls.length === 0 && (
+        <section className="mx-auto max-w-md px-6 pb-24 text-center">
+          <Scroll className="mx-auto mb-4 h-10 w-10 text-muted-foreground/30" />
+          <p className="text-muted-foreground">No scrolls have been published yet. Check back soon.</p>
+        </section>
+      )}
 
       {/* Footer */}
       <footer className="border-t border-border py-12">

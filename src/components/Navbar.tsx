@@ -41,6 +41,11 @@ export const Navbar = () => {
         <div className="flex items-center gap-3">
           {user ? (
             <>
+              {role === "scribe" && (
+                <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+                  <Link to="/dashboard">Dashboard</Link>
+                </Button>
+              )}
               <span className="hidden text-sm text-foreground sm:inline">{displayName}</span>
               {role && (
                 <Badge
@@ -64,14 +69,9 @@ export const Navbar = () => {
               </Button>
             </>
           ) : (
-            <>
-              <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
-                <Link to="/auth">Read the Scrolls</Link>
-              </Button>
-              <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/80" asChild>
-                <Link to="/auth">Enter the Keep</Link>
-              </Button>
-            </>
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+              <Link to="/auth">Sign In</Link>
+            </Button>
           )}
         </div>
       </div>
