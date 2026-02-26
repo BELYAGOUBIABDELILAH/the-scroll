@@ -60,7 +60,6 @@ export const PledgeAllianceModal = ({
     setInitialized(true);
   }
 
-  // Reset when closing
   const handleClose = () => {
     setInitialized(false);
     setCheckedIds(new Set());
@@ -83,8 +82,6 @@ export const PledgeAllianceModal = ({
     }
     setSubmitting(true);
     try {
-      // email_subscribers is for anonymous email subs, so we just record intent
-      // For now we show a toast since the user isn't authenticated
       toast.success(`${checkedIds.size} alliance(s) noted. Welcome to the network.`);
       handleClose();
     } catch {
@@ -101,26 +98,28 @@ export const PledgeAllianceModal = ({
       <DialogOverlay
         className="fixed inset-0 z-50"
         style={{
-          backgroundColor: "rgba(0, 0, 0, 0.7)",
-          backdropFilter: "blur(12px)",
-          WebkitBackdropFilter: "blur(12px)",
+          backgroundColor: "rgba(0, 0, 0, 0.75)",
+          backdropFilter: "blur(16px)",
+          WebkitBackdropFilter: "blur(16px)",
         }}
       />
       <DialogContent
-        className="z-50 mx-auto max-w-md rounded-lg border p-8 shadow-2xl"
+        className="z-50 mx-auto max-w-md rounded-lg border p-0 shadow-2xl overflow-hidden"
         style={{
-          backgroundColor: "#0D0D0D",
-          borderColor: "#1A1A1A",
+          backgroundColor: "#121212",
+          borderColor: "#27272A",
         }}
       >
-        <h2
-          className="mb-6 font-serif-display text-xl font-bold leading-snug md:text-2xl"
-          style={{ color: "#EBEBEB" }}
-        >
-          Your raven has been dispatched. Expand your network.
-        </h2>
+        <div className="px-8 pt-10 pb-2">
+          <h2 className="mb-2 font-serif text-2xl font-bold leading-snug text-foreground">
+            Your oath is recorded. Expand your network.
+          </h2>
+          <p className="text-sm leading-relaxed text-muted-foreground">
+            Subscribe to allied writers recommended by this author.
+          </p>
+        </div>
 
-        <div className="mb-6 flex flex-col gap-3">
+        <div className="px-8 py-6 flex flex-col gap-1">
           {alliances.map((alliance) => {
             const name = alliance.profile?.display_name ?? "Unknown";
             const initial = name[0]?.toUpperCase() ?? "?";
@@ -129,49 +128,49 @@ export const PledgeAllianceModal = ({
             return (
               <label
                 key={alliance.id}
-                className="flex cursor-pointer items-center gap-3 rounded-md px-3 py-2 transition-colors"
-                style={{ backgroundColor: checked ? "#121212" : "transparent" }}
+                className="flex cursor-pointer items-center gap-3 rounded-lg px-3 py-3 transition-colors hover:bg-secondary"
+                style={{ backgroundColor: checked ? "rgba(139, 0, 0, 0.06)" : "transparent" }}
               >
                 <Checkbox
                   checked={checked}
                   onCheckedChange={() => toggleCheck(alliance.allied_user_id)}
-                  className="border-[#3F3F46] data-[state=checked]:bg-[#8B0000] data-[state=checked]:border-[#8B0000]"
+                  className="border-border data-[state=checked]:bg-primary data-[state=checked]:border-primary"
                 />
-                <Avatar className="h-8 w-8" style={{ filter: "grayscale(100%)" }}>
+                <Avatar className="h-9 w-9" style={{ filter: "grayscale(100%)" }}>
                   {alliance.profile?.avatar_url ? (
                     <AvatarImage src={alliance.profile.avatar_url} alt={name} />
                   ) : null}
-                  <AvatarFallback
-                    className="text-xs"
-                    style={{ backgroundColor: "#1A1A1A", color: "#A1A1AA" }}
-                  >
+                  <AvatarFallback className="bg-secondary text-xs text-muted-foreground">
                     {initial}
                   </AvatarFallback>
                 </Avatar>
-                <span className="text-sm font-medium" style={{ color: "#FFFFFF" }}>
-                  {name}
-                </span>
+                <div className="min-w-0 flex-1">
+                  <span className="text-sm font-medium text-foreground">{name}</span>
+                  {alliance.description && (
+                    <p className="text-xs text-muted-foreground truncate">{alliance.description}</p>
+                  )}
+                </div>
               </label>
             );
           })}
         </div>
 
-        <button
-          onClick={handleSubmit}
-          disabled={submitting}
-          className="w-full rounded-md px-5 py-2.5 text-sm font-medium transition-opacity disabled:opacity-50"
-          style={{ backgroundColor: "#8B0000", color: "#F5F5F5" }}
-        >
-          {submitting ? "…" : "Add to Subscriptions"}
-        </button>
+        <div className="px-8 pb-8">
+          <button
+            onClick={handleSubmit}
+            disabled={submitting}
+            className="w-full rounded-md bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground transition-opacity hover:opacity-90 disabled:opacity-50"
+          >
+            {submitting ? "…" : "Add to Subscriptions"}
+          </button>
 
-        <button
-          onClick={handleClose}
-          className="mt-3 w-full text-center text-sm transition-opacity hover:opacity-80"
-          style={{ color: "#71717A" }}
-        >
-          No thanks, enter the archives.
-        </button>
+          <button
+            onClick={handleClose}
+            className="mt-4 w-full text-center text-sm text-muted-foreground transition-opacity hover:opacity-70"
+          >
+            No thanks, enter the archives.
+          </button>
+        </div>
       </DialogContent>
     </Dialog>
   );
