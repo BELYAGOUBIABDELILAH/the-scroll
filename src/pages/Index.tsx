@@ -6,9 +6,10 @@ import { ScrollCard } from "@/components/ScrollCard";
 import { AvatarUpload } from "@/components/AvatarUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
 import { Input } from "@/components/ui/input";
+import { trackPageView } from "@/lib/analytics";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -23,6 +24,10 @@ const Index = () => {
   const [email, setEmail] = useState("");
   const [subscribing, setSubscribing] = useState(false);
   const { toast } = useToast();
+
+  useEffect(() => {
+    trackPageView();
+  }, []);
 
   // Fetch the first scribe's profile for the hero
   const { data: scribe } = useQuery({

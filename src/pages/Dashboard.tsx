@@ -4,6 +4,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "@/components/Navbar";
+import { DashboardAnalytics } from "@/components/DashboardAnalytics";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Feather, Trash2, Eye, EyeOff, Mail, Users } from "lucide-react";
@@ -129,6 +130,9 @@ const Dashboard = () => {
             </Link>
           </Button>
         </div>
+
+        {/* Analytics Bento Grid */}
+        <DashboardAnalytics />
 
         {/* Tabs */}
         <div className="mb-8 flex gap-1 rounded-lg border border-border bg-secondary p-1">
