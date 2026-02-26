@@ -1,5 +1,7 @@
 import { motion, AnimatePresence } from "framer-motion";
 import { Scroll, Lock, Users, MessageSquare, Flame } from "lucide-react";
+import { HowItWorks } from "@/components/HowItWorks";
+import { Testimonials } from "@/components/Testimonials";
 import { Link } from "react-router-dom";
 import { Navbar } from "@/components/Navbar";
 import { ScrollCard } from "@/components/ScrollCard";
@@ -389,6 +391,16 @@ const Index = () => {
           ))}
         </div>
       </section>
+
+      {/* ═══════════════════════════════════════════
+          HOW IT WORKS
+      ═══════════════════════════════════════════ */}
+      <HowItWorks />
+
+      {/* ═══════════════════════════════════════════
+          TESTIMONIALS
+      ═══════════════════════════════════════════ */}
+      <Testimonials />
 
       {/* ═══════════════════════════════════════════
           ALLIANCES
