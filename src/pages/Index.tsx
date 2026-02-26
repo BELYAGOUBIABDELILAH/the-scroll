@@ -32,11 +32,11 @@ const Index = () => {
             <span className="font-serif text-xl font-bold tracking-wide text-foreground">The Scroll</span>
           </Link>
           <div className="flex items-center gap-3">
-            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground">
-              Read the Scrolls
+            <Button variant="ghost" size="sm" className="text-muted-foreground hover:text-foreground" asChild>
+              <Link to="/auth">Read the Scrolls</Link>
             </Button>
-            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/80">
-              Enter the Keep
+            <Button size="sm" className="bg-primary text-primary-foreground hover:bg-primary/80" asChild>
+              <Link to="/auth">Enter the Keep</Link>
             </Button>
           </div>
         </div>
@@ -84,13 +84,17 @@ const Index = () => {
           </motion.p>
 
           <motion.div variants={fadeUp} custom={3} className="flex items-center justify-center gap-4">
-            <Button size="lg" className="bg-primary px-8 text-primary-foreground hover:bg-primary/80">
-              <Shield className="mr-2 h-4 w-4" />
-              Enter the Keep
+            <Button size="lg" className="bg-primary px-8 text-primary-foreground hover:bg-primary/80" asChild>
+              <Link to="/auth">
+                <Shield className="mr-2 h-4 w-4" />
+                Enter the Keep
+              </Link>
             </Button>
-            <Button size="lg" variant="outline" className="border-border px-8 text-foreground hover:bg-secondary">
-              <BookOpen className="mr-2 h-4 w-4" />
-              Read the Scrolls
+            <Button size="lg" variant="outline" className="border-border px-8 text-foreground hover:bg-secondary" asChild>
+              <Link to="/auth">
+                <BookOpen className="mr-2 h-4 w-4" />
+                Read the Scrolls
+              </Link>
             </Button>
           </motion.div>
         </motion.div>
