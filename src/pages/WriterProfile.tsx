@@ -1,9 +1,9 @@
 import { useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, ArrowLeft, Share2, Check } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { Input } from "@/components/ui/input";
@@ -17,6 +17,26 @@ function getReadingTime(content: string): string {
   const words = content.trim().split(/\s+/).length;
   return `${Math.max(1, Math.ceil(words / 200))} min`;
 }
+
+const ShareButton = () => {
+  const [copied, setCopied] = useState(false);
+  const handleShare = useCallback(async () => {
+    await navigator.clipboard.writeText(window.location.href);
+    toast.success("Lien copié !");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  }, []);
+  return (
+    <button
+      onClick={handleShare}
+      className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
+      style={{ color: "#A1A1AA" }}
+    >
+      {copied ? <Check className="h-4 w-4" /> : <Share2 className="h-4 w-4" />}
+      {copied ? "Copié" : "Partager"}
+    </button>
+  );
+};
 
 const fadeUp = {
   hidden: { opacity: 0, y: 20 },
@@ -166,11 +186,24 @@ const WriterProfile = () => {
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: "#080808" }}>
+      {/* ── Top nav bar ── */}
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-6 pt-6">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm transition-opacity hover:opacity-70"
+          style={{ color: "#A1A1AA" }}
+        >
+          <ArrowLeft className="h-4 w-4" />
+          Retour
+        </Link>
+        <ShareButton />
+      </div>
+
       {/* ═══════════════════════════════════════════
           COMPONENT 1: THE ROYAL BANNER
       ═══════════════════════════════════════════ */}
       <section
-        className="relative flex flex-col items-center px-6 pb-16 pt-20 md:pt-28 text-center"
+        className="relative flex flex-col items-center px-6 pb-16 pt-12 md:pt-16 text-center"
         style={{
           background: "linear-gradient(180deg, #0A0A0A 0%, #080808 100%)",
         }}
