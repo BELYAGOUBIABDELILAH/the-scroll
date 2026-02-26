@@ -1,14 +1,14 @@
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Scroll } from "lucide-react";
 import { Navbar } from "@/components/Navbar";
 import { ScrollCard } from "@/components/ScrollCard";
+import { AvatarUpload } from "@/components/AvatarUpload";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery } from "@tanstack/react-query";
 import { useState } from "react";
 import { useToast } from "@/hooks/use-toast";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import { Input } from "@/components/ui/input";
 
 const fadeUp = {
   hidden: { opacity: 0, y: 30 },
@@ -114,12 +114,11 @@ const Index = () => {
           variants={{ visible: { transition: { staggerChildren: 0.15 } } }}
         >
           <motion.div variants={fadeUp} custom={0}>
-            <Avatar className="mb-4 h-20 w-20 border-2 border-primary/30">
-              <AvatarImage src={scribe?.avatar_url ?? undefined} />
-              <AvatarFallback className="bg-secondary text-foreground font-serif text-2xl">
-                {scribe?.display_name?.[0]?.toUpperCase() ?? "S"}
-              </AvatarFallback>
-            </Avatar>
+            <AvatarUpload
+              currentUrl={scribe?.avatar_url ?? null}
+              displayName={scribe?.display_name ?? "S"}
+              size="lg"
+            />
           </motion.div>
 
           <motion.h1
