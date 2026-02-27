@@ -27,17 +27,48 @@
 
 ## Features
 
-| | Feature | Description |
-|:---:|---|---|
-| 📝 | **Scroll Editor** | Rich markdown editor with live preview, built for long-form writing |
-| 🤝 | **Alliance System** | Readers pledge allegiance to Scribes — a meaningful alternative to follows |
-| 💬 | **Council Comments** | Structured, thoughtful discussion under every published scroll |
-| 👤 | **Writer Profiles** | Personalized profiles with avatar, bio, and full publication history |
-| 🏷️ | **Topic Filtering** | Discover scrolls by tag, popularity, or recency |
-| 📊 | **Analytics Dashboard** | Writers track views, subscribers, and engagement over time |
-| 🏛️ | **Community Board** | Testimonials and community-driven content |
-| 🔐 | **Authentication** | Secure email-based signup and login |
-| 📱 | **Responsive Design** | Fully optimized across desktop, tablet, and mobile |
+<table>
+  <tr>
+    <td width="50%">
+      <h3>📝 Scroll Editor</h3>
+      <p>Rich markdown editor with live preview, purpose-built for long-form writing. No distractions, no limits.</p>
+    </td>
+    <td width="50%">
+      <h3>🤝 Alliance System</h3>
+      <p>Readers pledge allegiance to their favorite Scribes — a more intentional alternative to the hollow follow.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>💬 Council Comments</h3>
+      <p>Structured, thoughtful discussion threads under every scroll. Discourse over noise.</p>
+    </td>
+    <td width="50%">
+      <h3>👤 Writer Profiles</h3>
+      <p>Personalized profiles with avatar, bio, and a full archive of published works.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>📊 Analytics Dashboard</h3>
+      <p>Track views, subscribers, and engagement over time — owned by the writer, not the platform.</p>
+    </td>
+    <td width="50%">
+      <h3>🏷️ Topic Filtering</h3>
+      <p>Browse and discover scrolls by tag, popularity, or recency with a clean filtering interface.</p>
+    </td>
+  </tr>
+  <tr>
+    <td width="50%">
+      <h3>🔐 Authentication</h3>
+      <p>Secure, email-based signup and login. No third-party OAuth required.</p>
+    </td>
+    <td width="50%">
+      <h3>📱 Responsive Design</h3>
+      <p>Fully optimized layout across desktop, tablet, and mobile — pixel-perfect at every breakpoint.</p>
+    </td>
+  </tr>
+</table>
 
 ---
 
@@ -116,6 +147,20 @@ The Scroll uses a custom dark visual identity built around the theme of ancient 
 - **Motion** — Fire gradient transitions · Ember glow animations · Steel shimmer effects
 
 Tokens are defined as semantic HSL variables in `src/index.css` and consumed via Tailwind utilities throughout the app.
+
+---
+
+## Author
+
+<div align="center">
+
+**Belyagoubi Mohammed Abdelilah**
+*Master's Student — Networks, Systems & Information Security*
+
+[![Email](https://img.shields.io/badge/Email-belyagoubiabdillah%40gmail.com-D14836?style=flat-square&logo=gmail&logoColor=white)](mailto:belyagoubiabdillah@gmail.com)
+[![GitHub](https://img.shields.io/badge/GitHub-BELYAGOUBIABDELILAH-181717?style=flat-square&logo=github&logoColor=white)](https://github.com/BELYAGOUBIABDELILAH)
+
+</div>
 
 ---
 
