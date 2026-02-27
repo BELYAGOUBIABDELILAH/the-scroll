@@ -1,73 +1,124 @@
-# Welcome to your Lovable project
+<p align="center">
+  <img src="public/favicon.svg" alt="The Scroll Logo" width="80" />
+</p>
 
-## Project info
+<h1 align="center">The Scroll</h1>
 
-**URL**: https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID
+<p align="center">
+  <strong>Fire & Blood — A sovereign publishing platform for writers who refuse to kneel.</strong>
+</p>
 
-## How can I edit this code?
+<p align="center">
+  <a href="https://the-scroll.lovable.app">Live Demo</a> •
+  <a href="#features">Features</a> •
+  <a href="#tech-stack">Tech Stack</a> •
+  <a href="#getting-started">Getting Started</a> •
+  <a href="#architecture">Architecture</a>
+</p>
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## 📜 About
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and start prompting.
+**The Scroll** is a modern, long-form publishing platform inspired by the world of *House of the Dragon*. It empowers writers — or *Scribes* — to publish essays, stories, and chronicles without algorithms, gatekeepers, or engagement bait.
 
-Changes made via Lovable will be committed automatically to this repo.
+No clout. No dopamine loops. Just fire and ink.
 
-**Use your preferred IDE**
+---
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+## ✨ Features
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+| Feature | Description |
+|---|---|
+| **Scroll Editor** | Rich markdown editor for long-form content with live preview |
+| **Alliance System** | Readers can pledge allegiance to their favorite Scribes |
+| **Council Comments** | Thoughtful discourse under every published scroll |
+| **Writer Profiles** | Personalized profiles with avatars, bios, and published works |
+| **Topic Filtering** | Browse scrolls by tag, popularity, or recency |
+| **Analytics Dashboard** | Track views, subscribers, and engagement metrics |
+| **Community Board** | Testimonials and community-driven content |
+| **Authentication** | Secure email-based signup and login |
+| **Responsive Design** | Fully optimized for desktop, tablet, and mobile |
 
-Follow these steps:
+---
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
+## 🛠 Tech Stack
+
+| Layer | Technology |
+|---|---|
+| **Framework** | React 18 + TypeScript |
+| **Build Tool** | Vite |
+| **Styling** | Tailwind CSS + shadcn/ui |
+| **Animation** | Framer Motion |
+| **Routing** | React Router v6 |
+| **State & Data** | TanStack React Query |
+| **Backend** | Lovable Cloud (PostgreSQL, Auth, Storage, Edge Functions) |
+| **Charts** | Recharts |
+| **Forms** | React Hook Form + Zod validation |
+
+---
+
+## 🚀 Getting Started
+
+### Prerequisites
+
+- [Node.js](https://nodejs.org/) (v18+)
+- npm or bun
+
+### Installation
+
+```bash
+# Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Navigate to the project directory
+cd the-scroll
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Install dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+The app will be available at `http://localhost:5173`.
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+---
 
-**Use GitHub Codespaces**
+## 🏗 Architecture
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+```
+src/
+├── components/          # Reusable UI components
+│   └── ui/              # shadcn/ui primitives
+├── contexts/            # React context providers (Auth)
+├── hooks/               # Custom hooks
+├── integrations/        # Backend client & types
+├── lib/                 # Utilities & analytics
+├── pages/               # Route-level page components
+└── main.tsx             # Application entry point
+```
 
-## What technologies are used for this project?
+---
 
-This project is built with:
+## 🎨 Design System
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+The Scroll uses a custom **House of the Dragon**-inspired design system:
 
-## How can I deploy this project?
+- **Typography**: Cinzel (headings) + Cormorant Garamond (body) + Inter (UI)
+- **Palette**: Deep obsidian blacks, Targaryen crimson, aged bronze, and ember gold
+- **Effects**: Dragon fire gradients, ember glow animations, Valyrian steel shimmers
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+All colors are defined as semantic HSL tokens in `src/index.css` and consumed via Tailwind utilities.
 
-## Can I connect a custom domain to my Lovable project?
+---
 
-Yes, you can!
+## 📄 License
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+This project is private and proprietary. All rights reserved.
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
+---
+
+<p align="center">
+  <sub>Built with 🔥 on <a href="https://lovable.dev">Lovable</a></sub>
+</p>
