@@ -1,124 +1,130 @@
-<p align="center">
-  <img src="public/favicon.svg" alt="The Scroll Logo" width="80" />
-</p>
+<div align="center">
 
-<h1 align="center">The Scroll</h1>
+<img src="public/favicon.svg" alt="The Scroll" width="72" />
 
-<p align="center">
-  <strong>Fire & Blood — A sovereign publishing platform for writers who refuse to kneel.</strong>
-</p>
+<h1>The Scroll</h1>
 
-<p align="center">
-  <a href="https://the-scroll.lovable.app">Live Demo</a> •
-  <a href="#features">Features</a> •
-  <a href="#tech-stack">Tech Stack</a> •
-  <a href="#getting-started">Getting Started</a> •
-  <a href="#architecture">Architecture</a>
-</p>
+<p><em>A sovereign publishing platform for writers who refuse to kneel.</em></p>
 
----
+[![Live](https://img.shields.io/badge/Live%20App-the--scroll.lovable.app-black?style=flat-square)](https://the-scroll.lovable.app)
+[![React](https://img.shields.io/badge/React%2018-TypeScript-61DAFB?style=flat-square&logo=react&logoColor=white)](https://reactjs.org)
+[![Vite](https://img.shields.io/badge/Build-Vite-646CFF?style=flat-square&logo=vite&logoColor=white)](https://vitejs.dev)
+[![License](https://img.shields.io/badge/License-Proprietary-red?style=flat-square)](#license)
 
-## 📜 About
+[Live Demo](https://the-scroll.lovable.app) · [Features](#-features) · [Tech Stack](#-tech-stack) · [Getting Started](#-getting-started) · [Architecture](#-architecture)
 
-**The Scroll** is a modern, long-form publishing platform inspired by the world of *House of the Dragon*. It empowers writers — or *Scribes* — to publish essays, stories, and chronicles without algorithms, gatekeepers, or engagement bait.
-
-No clout. No dopamine loops. Just fire and ink.
+</div>
 
 ---
 
-## ✨ Features
+## Overview
 
-| Feature | Description |
-|---|---|
-| **Scroll Editor** | Rich markdown editor for long-form content with live preview |
-| **Alliance System** | Readers can pledge allegiance to their favorite Scribes |
-| **Council Comments** | Thoughtful discourse under every published scroll |
-| **Writer Profiles** | Personalized profiles with avatars, bios, and published works |
-| **Topic Filtering** | Browse scrolls by tag, popularity, or recency |
-| **Analytics Dashboard** | Track views, subscribers, and engagement metrics |
-| **Community Board** | Testimonials and community-driven content |
-| **Authentication** | Secure email-based signup and login |
-| **Responsive Design** | Fully optimized for desktop, tablet, and mobile |
+**The Scroll** is a modern long-form publishing platform for writers who value depth over virality. It gives *Scribes* — the writers on the platform — a clean, distraction-free space to publish essays, stories, and chronicles without algorithms, engagement bait, or gatekeepers.
+
+> No clout. No dopamine loops. Just writing that matters.
 
 ---
 
-## 🛠 Tech Stack
+## Features
 
-| Layer | Technology |
-|---|---|
-| **Framework** | React 18 + TypeScript |
-| **Build Tool** | Vite |
-| **Styling** | Tailwind CSS + shadcn/ui |
-| **Animation** | Framer Motion |
-| **Routing** | React Router v6 |
-| **State & Data** | TanStack React Query |
-| **Backend** | Lovable Cloud (PostgreSQL, Auth, Storage, Edge Functions) |
-| **Charts** | Recharts |
-| **Forms** | React Hook Form + Zod validation |
+| | Feature | Description |
+|:---:|---|---|
+| 📝 | **Scroll Editor** | Rich markdown editor with live preview, built for long-form writing |
+| 🤝 | **Alliance System** | Readers pledge allegiance to Scribes — a meaningful alternative to follows |
+| 💬 | **Council Comments** | Structured, thoughtful discussion under every published scroll |
+| 👤 | **Writer Profiles** | Personalized profiles with avatar, bio, and full publication history |
+| 🏷️ | **Topic Filtering** | Discover scrolls by tag, popularity, or recency |
+| 📊 | **Analytics Dashboard** | Writers track views, subscribers, and engagement over time |
+| 🏛️ | **Community Board** | Testimonials and community-driven content |
+| 🔐 | **Authentication** | Secure email-based signup and login |
+| 📱 | **Responsive Design** | Fully optimized across desktop, tablet, and mobile |
 
 ---
 
-## 🚀 Getting Started
+## Tech Stack
 
-### Prerequisites
+**Frontend**
 
-- [Node.js](https://nodejs.org/) (v18+)
-- npm or bun
+![React](https://img.shields.io/badge/React%2018-20232a?style=flat-square&logo=react&logoColor=61DAFB)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?style=flat-square&logo=typescript&logoColor=white)
+![Vite](https://img.shields.io/badge/Vite-646CFF?style=flat-square&logo=vite&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind%20CSS-0F172A?style=flat-square&logo=tailwindcss&logoColor=38BDF8)
+![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-000000?style=flat-square&logo=shadcnui&logoColor=white)
+![Framer Motion](https://img.shields.io/badge/Framer%20Motion-0055FF?style=flat-square&logo=framer&logoColor=white)
 
-### Installation
+**Data & Forms**
+
+![TanStack Query](https://img.shields.io/badge/TanStack%20Query-FF4154?style=flat-square&logo=reactquery&logoColor=white)
+![React Hook Form](https://img.shields.io/badge/React%20Hook%20Form-EC5990?style=flat-square&logo=reacthookform&logoColor=white)
+![Zod](https://img.shields.io/badge/Zod-3E67B1?style=flat-square)
+![Recharts](https://img.shields.io/badge/Recharts-22B5BF?style=flat-square)
+
+**Backend**
+
+![PostgreSQL](https://img.shields.io/badge/PostgreSQL-316192?style=flat-square&logo=postgresql&logoColor=white)
+![Edge Functions](https://img.shields.io/badge/Edge%20Functions-000000?style=flat-square)
+![Storage](https://img.shields.io/badge/Object%20Storage-4A90D9?style=flat-square)
+
+---
+
+## Getting Started
+
+**Prerequisites:** Node.js v18+ with npm or bun.
 
 ```bash
-# Clone the repository
+# 1. Clone the repository
 git clone <YOUR_GIT_URL>
-
-# Navigate to the project directory
 cd the-scroll
 
-# Install dependencies
+# 2. Install dependencies
 npm install
 
-# Start the development server
+# 3. Configure environment variables
+cp .env.example .env
+# Fill in your backend credentials in .env
+
+# 4. Start the development server
 npm run dev
 ```
 
-The app will be available at `http://localhost:5173`.
+App runs at **http://localhost:5173**
 
 ---
 
-## 🏗 Architecture
+## Architecture
 
 ```
 src/
-├── components/          # Reusable UI components
-│   └── ui/              # shadcn/ui primitives
-├── contexts/            # React context providers (Auth)
-├── hooks/               # Custom hooks
-├── integrations/        # Backend client & types
-├── lib/                 # Utilities & analytics
-├── pages/               # Route-level page components
-└── main.tsx             # Application entry point
+├── components/         # Shared UI components
+│   └── ui/             # Base design system primitives (shadcn/ui)
+├── contexts/           # Global state — Auth context
+├── hooks/              # Custom React hooks
+├── integrations/       # Backend client configuration & types
+├── lib/                # Utilities, helpers, analytics
+├── pages/              # Route-level page components
+└── main.tsx            # App entry point
 ```
 
 ---
 
-## 🎨 Design System
+## Design System
 
-The Scroll uses a custom **House of the Dragon**-inspired design system:
+The Scroll uses a custom dark visual identity built around the theme of ancient power and written legacy:
 
-- **Typography**: Cinzel (headings) + Cormorant Garamond (body) + Inter (UI)
-- **Palette**: Deep obsidian blacks, Targaryen crimson, aged bronze, and ember gold
-- **Effects**: Dragon fire gradients, ember glow animations, Valyrian steel shimmers
+- **Typography** — `Cinzel` for headings · `Cormorant Garamond` for body text · `Inter` for UI
+- **Palette** — Obsidian black · Targaryen crimson · Aged bronze · Ember gold
+- **Motion** — Fire gradient transitions · Ember glow animations · Steel shimmer effects
 
-All colors are defined as semantic HSL tokens in `src/index.css` and consumed via Tailwind utilities.
-
----
-
-## 📄 License
-
-This project is private and proprietary. All rights reserved.
+Tokens are defined as semantic HSL variables in `src/index.css` and consumed via Tailwind utilities throughout the app.
 
 ---
 
-<p align="center">
-  <sub>Built with 🔥 on <a href="https://lovable.dev">Lovable</a></sub>
-</p>
+## License
+
+This project is proprietary. All rights reserved. Unauthorized use, copying, or distribution is not permitted.
+
+---
+
+<div align="center">
+  <sub>© 2025 The Scroll — Built with 🔥</sub>
+</div>
